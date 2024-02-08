@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 
-function App() {
+function App() {//random comment
   const [sliderValue, setSliderValue] = useState(50); // Initial slider value
 
   return (
