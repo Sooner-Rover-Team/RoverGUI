@@ -36,3 +36,20 @@
     transform: rotate(360deg);
   }
 }
+
+.slider-container {
+  width: 200px; /* Adjust based on your preference */
+  margin: auto;
+}
+
+.slider {
+  width: 100%;
+}
+
+.slider-value {
+  background-color: #fff;
+  padding: 2px 5px;
+  border-radius: 4px;
+  /* Adjust other styling as needed */
+}
+

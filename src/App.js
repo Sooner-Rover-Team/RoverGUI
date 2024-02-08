@@ -1,25 +1,26 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
+  const [sliderValue, setSliderValue] = useState(50); // Initial slider value
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <input
+          type="range"
+          min="1"
+          max="100"
+          value={sliderValue}
+          onChange={(e) => setSliderValue(e.target.value)}
+        />
+        <p>Slider Value: {sliderValue}</p>
       </header>
     </div>
   );
 }
 
 export default App;
+
+
+
