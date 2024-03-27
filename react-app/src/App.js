@@ -1,23 +1,18 @@
 import React, { useState } from 'react';
-import ReactPlayer from 'react-player';
 import './App.css';
 
 //filepath for testing (DELETE LATER): ../../../GitHub/Automomous/examples/ARTrackerTest/videos
 function App() {
   const [sliderValue, setSliderValue] = useState(50); // Initial slider value
-  const [videoFilePath] = useState("https://youtu.be/WLw4mNk6fTk?si=9-LhGRexKvEPWMQ1"); // Initial video file path
+  const [frame] = useState('/stream') //calling stream route from server
 
+//change this to a frame variable that contains an image that can be updated with each change
+//of the state (as with any state variable) and then change the rendering to an image render
+//instead of a video render
   return (
     <div className="App">
       <header className="App-header">
-      <ReactPlayer url={videoFilePath} width="90%" height="90%" playing={true} volume={0} controls={true} />
-        <input
-          type="range"
-          min="1"
-          max="100"
-          value={sliderValue}
-          onChange={(e) => setSliderValue(e.target.value)}
-        />
+        <img src={frame} alt="Camera Frame" width="600" height="400" />
         <p>Slider Value: {sliderValue}</p>
       </header>
     </div>
