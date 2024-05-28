@@ -20,6 +20,11 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = []
 
+[tool.rye.scripts]
+# see: https://rye.astral.sh/guide/pyproject/#toolryescripts
+dev = { cmd = "fastapi dev --reload"}
+run = { cmd = "fastapi run" }
+
 [tool.hatch.metadata]
 allow-direct-references = true
 
