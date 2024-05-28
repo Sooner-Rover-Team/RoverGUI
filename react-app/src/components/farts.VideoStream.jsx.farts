@@ -1,0 +1,70 @@
+import React, { useEffect, useState, useRef } from "react";
+import axiosInstance from "../axiosInstance";
+
+// Define a functional component called VideoStream
+const VideoStream = () => {
+  // Reference to the image element being displayed
+  const imgRef = useRef(null);
+
+  // Name of the camera whose streaming
+  const cameraName = "Integrated_Webcam_FHD";
+
+  // Fetch the video stream everytime the component renders
+  // NOTE: Should this just be on mount?
+  useEffect(() => {
+    // A function to fetch the video stream from the backend
+    const fetchVideoStream = async () => {
+      try {
+        // Catch any errors during fetch
+        // Get Stream Response for camera stream
+        const response = await axiosInstance.get(
+          "/stream/start/" + cameraName,
+          {
+            responseType: "stream",
+          }
+        );
+
+        // Start reading data from the stream
+        const reader = response.data.getReader(); // Let's us read data chunks
+        const stream = new ReadableStream({
+          start(controller) {
+            // Start reading from the stream
+
+            // Recursive function to read data chunks and enqueue
+            // them into the ReadableStream controller
+            function push() {
+              reader.read().then(({ done, value }) => {
+                if (done) {
+                  controller.close();
+                  return;
+                }
+                controller.enqueue(value);
+                push();
+              });
+            }
+            push();
+          },
+        });
+
+        // Convert readable stream into a url to use as img src
+        const streamUrl = URL.createObjectURL(new Response(stream).body);
+        console.log(streamUrl);
+        if (imgRef.current) {
+          imgRef.current.src = streamUrl;
+        }
+      } catch (error) {
+        console.error("Error fetching video stream:", error);
+      }
+    };
+    fetchVideoStream();
+  }, []);
+
+  return (
+    <div>
+      <h1>Video Stream for {cameraName}</h1>
+      <img ref={imgRef} alt="Video Stream" style={{ width: "100%" }} />
+    </div>
+  );
+};
+
+export default VideoStream;

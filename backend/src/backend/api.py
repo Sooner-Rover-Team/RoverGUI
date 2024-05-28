@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Response
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import cv2
 import time
 
@@ -8,6 +9,17 @@ from backend.managers.camera_manager import CameraManger, CameraNotFoundError
 
 # Create api
 app = FastAPI()
+
+# Configure CORS
+origins = [
+    "http://localhost:3000", # React development server
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 # Create camera manager
 camera_manager = CameraManger()
@@ -55,6 +67,9 @@ def generate_frames(cap: cv2.VideoCapture, camera_name: str):
             time_since_last_frame = time.time() * 1000
     cap.release()
 
+@app.get("/hello")
+async def hello():
+    return "Sup from backend"
 
 @app.get("/stream/start/{camera_name}")
 async def start_stream(camera_name: str) -> StreamingResponse:
