@@ -63,9 +63,9 @@ class Camera:
     A representation of camera that stores information like name, camera index, etc.
     """
 
-    camera_name: str
-    camera_path: str
-    camera_fps: int
+    name: str
+    path: str
+    fps: int
     resolution: Resolution
     image_quality: int
     video_capture: cv2.VideoCapture | None
@@ -74,7 +74,7 @@ class Camera:
         self,
         camera_name: str,
         camera_path: str,
-        resolution: Resolution | None = Resolution(640, 480),
+        resolution: Resolution | None = Resolution(horizontal=640, vertical=480),
         camera_fps: int = 30,
         image_quality: int = 90,
         video_capture: cv2.VideoCapture | None = None,
