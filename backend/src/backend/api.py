@@ -21,48 +21,6 @@ app.add_middleware(
 # Create camera manager
 camera_manager = CameraManager()
 
-
-def fps_to_ms(fps: int) -> float:
-    """
-    Convert frames per second to frames per miliseconds (time between each frame)
-    """
-    return (1 / fps) * 1000
-
-
-def generate_frames(cap: cv2.VideoCapture, camera_name: str):
-    """
-    A generator that will yield the frames for a given camera
-
-    TODO: Instead of reading frames and yielding them directly, utilize multiprocessing
-    so that each camera is running on its own process and then this loop is only grabbing from said processes queue.
-    """
-    # Capture video frames at specified frame rate
-    time_since_last_frame = 0
-    while camera_manager.get_camera(camera_name).is_running:
-        # Get the wait time based on fps
-        wait_time = fps_to_ms(camera_manager.get_camera(camera_name).fps)
-
-        # Capture a video frame
-        success, frame = cap.read()
-        if not success:
-            break
-
-        # Check if it's time to send a frame
-        # NOTE: The time function is in millis, so x1000 makes it in seconds
-        if time.time() * 1000 - time_since_last_frame > wait_time:
-            # Get the encoding quality of camera
-            encoding_params = camera_manager.get_camera_encoding_params(camera_name)
-
-            # Encode frame and convert to byte string
-            ret, buffer = cv2.imencode(".jpg", frame, encoding_params)
-            frame = buffer.tobytes()
-
-            # Yield the current frame
-            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
-            time_since_last_frame = time.time() * 1000
-    cap.release()
-
-
 @app.get("/hello")
 async def hello():
     return "Sup from backend"
@@ -76,6 +34,10 @@ async def start_stream(camera_name: str) -> StreamingResponse:
     try:
         camera = camera_manager.get_camera(camera_name)
         # If camera is already streaming, return bad response
+        if camera.is_streaming:
+            raise HTTPException(
+                status_code=400, detail=f"{camera_name} is already streaming"
+            )
         # Create video capture object for camera
         cap = cv2.VideoCapture(camera_manager.camera_path_from_name(camera_name))
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # don't store extra frames
@@ -85,7 +47,7 @@ async def start_stream(camera_name: str) -> StreamingResponse:
         raise HTTPException(status_code=404, detail=str(e))
     # Return streaming response
     return StreamingResponse(
-        generate_frames(cap, camera_name),
+        camera.stream(),
         media_type="multipart/x-mixed-replace; boundary=frame",
     )
 
@@ -101,6 +63,7 @@ async def end_stream(camera_name: str) -> Response:
         raise HTTPException(status_code=404, detail=str(e))
 
     if camera.is_streaming:
+        camera.end_stream()
         return Response(status_code=200)
     else:
         raise HTTPException(
