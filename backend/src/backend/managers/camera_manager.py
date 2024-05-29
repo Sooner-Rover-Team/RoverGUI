@@ -245,6 +245,12 @@ class Camera:
             self.image_quality = quality
         else:
             raise CameraNotStartedError("setting current image quality", self.name)
+        
+    def get_camera_fps(self) -> int:
+        """
+        Get the fps for the camera
+        """
+        return self.camera_fps
 
 
 class CameraManager:
