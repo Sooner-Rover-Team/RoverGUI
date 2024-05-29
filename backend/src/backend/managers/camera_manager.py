@@ -55,22 +55,33 @@ class Resolution:
         f"{self.verical}x{self.horizontal}"
 
 
+@dataclass
 class Camera:
     """
     A representation of camera that stores information like name, camera index, etc.
     """
 
+    camera_name: str
+    camera_path: str
+    camera_fps: int
+    resolution: Resolution
+    video_capture: cv2.VideoCapture | None
+
+    encoding_params: list[int] = [cv2.IMWRITE_JPEG_QUALITY, 90]
+
     def __init__(
         self,
         camera_name: str,
         camera_path: str,
+        resolution: Resolution | None = Resolution(640, 480),
         camera_fps: int = 30,
-        resolution: Resolution = Resolution(640, 480),
+        video_capture: cv2.VideoCapture | None = None,
     ):
         self.name: str = camera_name
         self.path: str = camera_path
         self.resolution: Resolution = resolution
         self.fps: int = camera_fps
+        self.video_capture: cv2.VideoCapture | None = video_capture
         self.is_running: bool = False
 
         """
