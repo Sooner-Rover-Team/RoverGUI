@@ -48,13 +48,13 @@ def get_camera_name_and_paths() -> dict[str:str]:
     return cameras
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Resolution:
-    verical: int
     horizontal: int
+    vertical: int
 
     def __str__(self) -> str:
-        f"{self.verical}x{self.horizontal}"
+        return f"{self.horizontal}x{self.vertical}"
 
 
 @dataclass
