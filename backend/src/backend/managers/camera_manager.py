@@ -295,3 +295,9 @@ class CameraManager:
             if not camera.is_streaming:
                 available_cameras.append(camera.name)
         return available_cameras
+
+    def get_all_cameras(self) -> list[str]:
+        """
+        Return the camera names of every detected camera.
+        """
+        return [camera.name for camera in self.cameras]

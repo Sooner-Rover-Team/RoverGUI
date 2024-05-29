@@ -153,3 +153,14 @@ async def get_camera_image_quality(camera_name: str) -> Response:
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return Response(status_code=200, content=str(quality))
+
+@app.post("/stream/end_all")
+async def end_all_video_streams() -> Response:
+    for camera_name in camera_manager.get_all_cameras():
+        camera = camera_manager.get_camera(camera_name)
+        if camera.is_streaming:
+            camera.end_stream()
+            camera.stop()
+    return Response(status_code=200)
+    
+    
