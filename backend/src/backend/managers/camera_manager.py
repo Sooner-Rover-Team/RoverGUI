@@ -89,7 +89,7 @@ class CameraNotFoundError(Exception):
         super().__init__(self.message)
 
 
-class CameraManger:
+class CameraManager:
     """
     Camera Manager manages a list of currently connected USB cameras (at instantiation)
     and keeps track of which cameras are being used by along with a list of their configurations (fps, etc.)
