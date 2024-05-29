@@ -1,10 +1,18 @@
 import subprocess
 from dataclasses import dataclass
+from loguru import logger
 
 import cv2
+import time
 
-from ..error import CameraNotFoundError, CameraNotStartedError, VideoCaptureError
+from ..error import CameraNotFoundError, CameraNotStartedError
+from typing import Tuple, Union
 
+def fps_to_ms(fps: int) -> float:
+    """
+    Convert frames per second to frames per miliseconds (time between each frame)
+    """
+    return (1 / fps) * 1000
 
 def get_camera_name_and_paths() -> dict[str:str]:
     """

@@ -3,9 +3,9 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import cv2
-import time
+from loguru import logger
 
-from backend.managers.camera_manager import CameraManager, CameraNotFoundError
+from backend.managers.camera_manager import CameraManager, CameraNotFoundError, Resolution
 
 # Create api
 app = FastAPI()
