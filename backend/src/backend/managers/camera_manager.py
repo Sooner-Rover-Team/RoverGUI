@@ -70,8 +70,6 @@ class Camera:
     image_quality: int
     video_capture: cv2.VideoCapture | None
 
-    encoding_params: list[int] = [cv2.IMWRITE_JPEG_QUALITY, 90]
-
     def __init__(
         self,
         camera_name: str,
@@ -88,14 +86,6 @@ class Camera:
         self.image_quality: int = image_quality
         self.video_capture: cv2.VideoCapture | None = video_capture
         self.is_running: bool = False
-
-        """
-        Set the encoding quality for each frame that is sent to a client.
-        Although this is a list, it represents a key-value pair (WHY OPENCV?!).
-        90 is our default value, but it can range between 0-100 with 100 meaning that quality of the frame is maintained.
-        TODO: Consider other ways to compress, maybe use WebP or Pillow library
-        """
-        self.encoding_params: list[int]
 
     def start(self, video_capture: cv2.VideoCapture):
         """
