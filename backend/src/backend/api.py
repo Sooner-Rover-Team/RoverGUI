@@ -34,7 +34,7 @@ def generate_frames(cap: cv2.VideoCapture, camera_name: str):
     A generator that will yield the frames for a given camera
 
     TODO: Instead of reading frames and yielding them directly, utilize multiprocessing
-     so that each camera is running on its own process and then this loop is only grabbing from said processes queue.
+    so that each camera is running on its own process and then this loop is only grabbing from said processes queue.
     """
     # Capture video frames at specified frame rate
     time_since_last_frame = 0
@@ -125,6 +125,18 @@ async def set_camera_fps(camera_name: str, fps: int) -> Response:
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return Response(status_code=200)
+
+
+@app.get("/stream/fps/{camera_name}")
+async def get_camera_fps(camera_name: str) -> Response:
+    """
+    Get the fps on a camera given a camera name
+    """
+    try:
+        fps = camera_manager.get_camera_fps(camera_name)
+    except CameraNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return Response(status_code=200, content=fps)
 
 
 @app.post("/stream/encoding_quality/{camera_name}")
