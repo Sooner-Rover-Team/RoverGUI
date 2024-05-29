@@ -1,8 +1,10 @@
 import subprocess
+from dataclasses import dataclass
+
 import cv2
 
 
-def get_camera_name_and_paths() -> dict[str: str]:
+def get_camera_name_and_paths() -> dict[str:str]:
     """
     Returns a dictionary containing the camera name and its path (`/dev/videox`, etc.)
 
@@ -16,19 +18,17 @@ def get_camera_name_and_paths() -> dict[str: str]:
     command = "v4l2-ctl --list-devices"
     output = ""
     try:
-        output = subprocess.check_output(
-            command, shell=True, text=True)
+        output = subprocess.check_output(command, shell=True, text=True)
     except Exception as e:
         print(f"{e}")
 
     # Create a dictionary mapping camera name to device path
     cameras = {}
-    lines = output.strip().split('\n')
-    lines = [line.replace('\t', '') for line in lines]  # Remove tabs in output
-    lines = [line for line in lines if line != '']      # Remove empty lines
+    lines = output.strip().split("\n")
+    lines = [line.replace("\t", "") for line in lines]  # Remove tabs in output
+    lines = [line for line in lines if line != ""]  # Remove empty lines
     curr_line = 0
     while curr_line < len(lines):
-
         # Read the camera name
         camera_name = lines[curr_line].split(":")[0]
         curr_line += 1
@@ -41,9 +41,18 @@ def get_camera_name_and_paths() -> dict[str: str]:
         cameras[camera_name] = camera_path
 
         # Skip over other device file paths
-        while curr_line < len(lines) and lines[curr_line].startswith('/dev/'):
+        while curr_line < len(lines) and lines[curr_line].startswith("/dev/"):
             curr_line += 1
     return cameras
+
+
+@dataclass
+class Resolution:
+    verical: int
+    horizontal: int
+
+    def __str__(self) -> str:
+        f"{self.verical}x{self.horizontal}"
 
 
 class Camera:
@@ -51,9 +60,16 @@ class Camera:
     A representation of camera that stores information like name, camera index, etc.
     """
 
-    def __init__(self, camera_name: str, camera_path: str, camera_fps: int = 30):
+    def __init__(
+        self,
+        camera_name: str,
+        camera_path: str,
+        camera_fps: int = 30,
+        resolution: Resolution = Resolution(640, 480),
+    ):
         self.name: str = camera_name
         self.path: str = camera_path
+        self.resolution: Resolution = resolution
         self.fps: int = camera_fps
         self.is_running: bool = False
 
@@ -63,7 +79,7 @@ class Camera:
         90 is our default value, but it can range between 0-100 with 100 meaning that quality of the frame is maintained.
         TODO: Consider other ways to compress, maybe use WebP or Pillow library
         """
-        self.encoding_params: list[int] = [cv2.IMWRITE_JPEG_QUALITY, 90]
+        self.encoding_params: list[int]
 
 
 class CameraNotFoundError(Exception):
