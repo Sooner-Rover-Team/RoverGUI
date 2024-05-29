@@ -38,9 +38,9 @@ def generate_frames(cap: cv2.VideoCapture, camera_name: str):
     """
     # Capture video frames at specified frame rate
     time_since_last_frame = 0
-    while camera_manager.camera_is_running(camera_name):
+    while camera_manager.get_camera(camera_name).is_running:
         # Get the wait time based on fps
-        wait_time = fps_to_ms(camera_manager.get_camera_fps(camera_name))
+        wait_time = fps_to_ms(camera_manager.get_camera(camera_name).fps)
 
         # Capture a video frame
         success, frame = cap.read()
@@ -80,8 +80,9 @@ async def start_stream(camera_name: str) -> StreamingResponse:
         )
     try:
         # Create video capture object for camera
-        cap = camera_manager.start_video_capture(camera_name)
-        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Set camera parameters.
+        cap = cv2.VideoCapture(camera_manager.camera_path_from_name(camera_name))
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # don't store extra frames
+        camera_manager.get_camera(camera_name).start(cap)
 
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -97,12 +98,12 @@ async def end_stream(camera_name: str) -> Response:
     """
     End a video a stream given a camera name
     """
-    if camera_manager.camera_is_running(camera_name):
+    if camera_manager.get_camera(camera_name).is_running:
         camera_manager.end_video_capture(camera_name)
         return Response(status_code=200)
     else:
         raise HTTPException(
-            status_code=400, detail=f"{camera_name} is already not streaming"
+            status_code=400, detail=f"{camera_name} is not currently streaming"
         )
 
 
@@ -121,7 +122,7 @@ async def set_camera_fps(camera_name: str, fps: int) -> Response:
     Set the fps on a camera given a camera name
     """
     try:
-        camera_manager.set_camera_fps(camera_name, fps)
+        camera_manager.get_camera(camera_name).set_fps(fps)
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return Response(status_code=200)
@@ -133,21 +134,55 @@ async def get_camera_fps(camera_name: str) -> Response:
     Get the fps on a camera given a camera name
     """
     try:
-        fps = camera_manager.get_camera_fps(camera_name)
+        fps = camera_manager.get_camera(camera_name).camera_fps
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return Response(status_code=200, content=fps)
 
 
-@app.post("/stream/encoding_quality/{camera_name}")
-async def set_camera_encoding_quality(
-    camera_name: str, encoding_quality: int
-) -> Response:
+@app.post("/stream/resolution/{camera_name}")
+async def set_camera_resolution(camera_name: str, resolution: int) -> Response:
+    """
+    Set the resolution on a camera given a camera name
+    """
+    try:
+        camera_manager.get_camera(camera_name).set_current_resolution(resolution)
+    except CameraNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return Response(status_code=200)
+
+
+@app.get("/stream/resolution/{camera_name}")
+async def get_camera_resolution(camera_name: str) -> Response:
+    """
+    Get the resolution on a camera given a camera name
+    """
+    try:
+        resolution = camera_manager.get_camera(camera_name).resolution
+    except CameraNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return Response(status_code=200, content=resolution)
+
+
+@app.post("/stream/image_quality/{camera_name}")
+async def set_camera_image_quality(camera_name: str, quality: int) -> Response:
     """
     Change the JPEG image quality (a value from 0-100) given a camera name
     """
     try:
-        camera_manager.set_camera_encoding_params(camera_name, encoding_quality)
+        camera_manager.get_camera(camera_name).set_image_quality(quality)
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return Response(status_code=200)
+
+
+@app.get("/stream/image_quality/{camera_name}")
+async def get_camera_image_quality(camera_name: str) -> Response:
+    """
+    Get the image quality on a camera given a camera name
+    """
+    try:
+        quality = camera_manager.get_camera(camera_name).image_quality
+    except CameraNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return Response(status_code=200, content=quality)

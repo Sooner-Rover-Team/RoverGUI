@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 import cv2
 
+from ..error import CameraNotFoundError, CameraNotStartedError, VideoCaptureError
+
 
 def get_camera_name_and_paths() -> dict[str:str]:
     """
@@ -65,6 +67,7 @@ class Camera:
     camera_path: str
     camera_fps: int
     resolution: Resolution
+    image_quality: int
     video_capture: cv2.VideoCapture | None
 
     encoding_params: list[int] = [cv2.IMWRITE_JPEG_QUALITY, 90]
@@ -75,12 +78,14 @@ class Camera:
         camera_path: str,
         resolution: Resolution | None = Resolution(640, 480),
         camera_fps: int = 30,
+        image_quality: int = 90,
         video_capture: cv2.VideoCapture | None = None,
     ):
         self.name: str = camera_name
         self.path: str = camera_path
         self.resolution: Resolution = resolution
         self.fps: int = camera_fps
+        self.image_quality: int = image_quality
         self.video_capture: cv2.VideoCapture | None = video_capture
         self.is_running: bool = False
 
@@ -92,7 +97,67 @@ class Camera:
         """
         self.encoding_params: list[int]
 
+    def start(self, video_capture: cv2.VideoCapture):
+        """
+        Uses a given video capture object to start the camera.
 
+        Raises a `VideoCaptureError` if OpenCV fails to get a lock on the camera.
+        """
+        if self.video_capture.isOpened():
+            self.video_capture = video_capture
+            self.is_running = True
+        else:
+            raise VideoCaptureError(self.name)
+
+    def stop(self):
+        """
+        Stops the camera. This releases the video capture device for other uses.
+        """
+        self.video_capture.release()
+        self.video_capture = None
+        self.is_running = False
+
+    def set_current_resolution(self, resolution: Resolution):
+        """
+        Sets the camera's current resolution.
+
+        Raises a `CameraNotStartedError` if the camera hasn't been started yet.
+        """
+        if self.video_capture is not None:
+            self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, resolution.horizontal)
+            self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution.vertical)
+            self.resolution = resolution
+        else:
+            raise CameraNotStartedError("setting current resolution", self.name)
+
+    def set_fps(self, fps: int):
+        """
+        Sets the camera's fps.
+
+        Raises a `CameraNotStartedError` if the camera hasn't been started yet.
+        """
+        if self.video_capture is not None:
+            self.video_capture.set(cv2.CAP_PROP_FPS, fps)
+            self.fps = fps
+        else:
+            raise CameraNotStartedError("setting current fps", self.name)
+
+    def set_image_quality(self, quality: int):
+        """
+        Sets the camera's image quality, a value ranging from 0 to 100
+        representing the amount of image compression.
+
+        Raises a `CameraNotStartedError` if the camera hasn't been started yet,
+        or a `ValueError` if the quality isn't from 0 to 100.
+        """
+        if quality < 0 or quality > 100:
+            raise ValueError("Image quality must be between 0 and 100.")
+
+        if self.video_capture is not None:
+            self.video_capture.set(cv2.IMWRITE_JPEG_QUALITY, quality)
+            self.image_quality = quality
+        else:
+            raise CameraNotStartedError("setting current image quality", self.name)
 
 
 class CameraManager:
@@ -116,7 +181,7 @@ class CameraManager:
             cameras.append(Camera(camera_name, camera_path))
         return cameras
 
-    def __get_camera(self, camera_name: str) -> Camera:
+    def get_camera(self, camera_name: str) -> Camera:
         """
         Get the Camera object associated with a given camera name
 
@@ -129,97 +194,18 @@ class CameraManager:
         # Raise error if camera not found
         raise CameraNotFoundError(camera_name)
 
-    def get_camera_fps(self, camera_name: str) -> int:
+    def camera_path_from_name(self, camera_name: str) -> str:
         """
-        Return the fps for a camera, given a camera name
+        Get the path to a camera given its name
 
         Raises: CameraNotFoundError if specified camera cannot be found
         """
-        try:
-            camera = self.__get_camera(camera_name)
-        except CameraNotFoundError:
-            raise
-        return camera.fps
+        for camera in self.cameras:
+            if camera.name == camera_name:
+                return camera.path
 
-    def set_camera_fps(self, camera_name: str, fps: int):
-        """
-        Change the fps for a camera, given a camera name and fps
-
-        Raises: CameraNotFoundError if specified camera cannot be found
-        """
-        try:
-            camera = self.__get_camera(camera_name)
-        except CameraNotFoundError:
-            raise
-        camera.fps = fps
-
-    def get_camera_encoding_params(self, camera_name: str) -> list[int]:
-        """
-        Return the encoding parameters given a camera name
-        Will always be in the form [Image Type (JPEG, PNG, etc.), quality of image (0-100)]
-
-        Raises: CameraNotFoundError if specified camera cannot be found
-        """
-        try:
-            camera = self.__get_camera(camera_name)
-        except CameraNotFoundError:
-            raise
-        return camera.encoding_params
-
-    def set_camera_encoding_params(self, camera_name: str, encoding_quality: int):
-        """
-        Set the camera encoding parameters given a camera name
-
-        Raises: CameraNotFoundError if specified camera cannot be found
-        """
-        try:
-            camera = self.__get_camera(camera_name)
-        except CameraNotFoundError:
-            raise
-
-        # Change quality of captured frames
-        camera.encoding_params[1] = encoding_quality
-
-    def camera_is_running(self, camera_name: str) -> bool:
-        """
-        Return True if camera stream is being asked for and False if it has been ended
-
-        Raises: CameraNotFoundError if specified camera cannot be found
-        """
-        try:
-            camera = self.__get_camera(camera_name)
-        except CameraNotFoundError:
-            raise
-        return camera.is_running
-
-    def start_video_capture(self, camera_name: str) -> cv2.VideoCapture:
-        """
-        Given a camera name, return an openCV video capture object (to read frames)
-
-        Raises: CameraNotFoundError if specified camera cannot be found
-
-        """
-        try:
-            camera = self.__get_camera(camera_name)
-        except CameraNotFoundError:
-            raise
-
-        # Create video capture device
-        cap = cv2.VideoCapture(camera.path)
-        camera.is_running = True
-        return cap
-
-    def end_video_capture(self, camera_name: str):
-        """
-        Set a camera to no longer run
-
-        Raises: CameraNotFoundError if specified camera cannot be found
-        """
-        try:
-            camera = self.__get_camera(camera_name)
-        except CameraNotFoundError:
-            raise
-        camera.is_running = False
+        # Raise error if camera not found
+        raise CameraNotFoundError(camera_name)
 
     def get_available_cameras(self) -> list[str]:
         """
