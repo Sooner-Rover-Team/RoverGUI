@@ -141,12 +141,15 @@ async def get_camera_fps(camera_name: str) -> Response:
 
 
 @app.post("/stream/resolution/{camera_name}")
-async def set_camera_resolution(camera_name: str, resolution: int) -> Response:
+async def set_camera_resolution(camera_name: str, vertical: int, horizontal: int) -> Response:
     """
     Set the resolution on a camera given a camera name
     """
     try:
+        logger.info(f"Changing {camera_name} resolution")
+        resolution = Resolution(horizontal=horizontal, vertical=vertical)
         camera_manager.get_camera(camera_name).set_current_resolution(resolution)
+        logger.info(f"Changed {camera_name} resolution")
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return Response(status_code=200)
@@ -161,7 +164,7 @@ async def get_camera_resolution(camera_name: str) -> Response:
         resolution = camera_manager.get_camera(camera_name).resolution
     except CameraNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    return Response(status_code=200, content=resolution)
+    return Response(status_code=200, content=str(resolution))
 
 
 @app.post("/stream/image_quality/{camera_name}")
