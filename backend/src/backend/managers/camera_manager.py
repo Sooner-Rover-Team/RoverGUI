@@ -93,11 +93,6 @@ class Camera:
         self.encoding_params: list[int]
 
 
-class CameraNotFoundError(Exception):
-    def __init__(self, camera_name: str):
-        self.message = f"Error: Camera with name {
-            camera_name} cannot be found."
-        super().__init__(self.message)
 
 
 class CameraManager:
