@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './App.css';
+import { useState, useEffect, useRef } from "react";
+import "./App.css";
 
 //filepath for testing (DELETE LATER): ../../../GitHub/Automomous/examples/ARTrackerTest/videos
 function App() {
@@ -25,8 +25,8 @@ function App() {
   // Fetch Camera(s) Information from Server
   useEffect(() => {
     (async () => {
-      let response = await fetch("/stream/cameras");
-      let cameras = await response.json();
+      const response = await fetch("/stream/cameras");
+      const cameras = await response.json();
 
       setCameras(["", ...cameras]);
     })();
@@ -42,38 +42,44 @@ function App() {
   const [selectedCamera, setSelectedCamera] = useState("");
 
   const handleCameraChange = async (event) => {
-    let selectedCameraPath = event.target.value;
+    const selectedCameraPath = event.target.value;
 
-    if (connection.current !== null)
+    if (connection.current !== null) {
       connection.current.close();
+    }
 
-    if (selectedCameraPath === "")
+    if (selectedCameraPath === "") {
       return;
+    }
 
-    let peerConnection = new RTCPeerConnection();
+    const peerConnection = new RTCPeerConnection();
     peerConnection.ontrack = (e) => {
-      var el = document.createElement(e.track.kind);
+      const el = document.createElement(e.track.kind);
       el.srcObject = e.streams[0];
       el.autoplay = true;
       el.controls = true;
-    
+
       document.getElementById("videoDiv").appendChild(el);
     };
 
     peerConnection.onicecandidate = async (e) => {
-      if (e.candidate === null || connection.current !== null)
-          return;
+      if (e.candidate === null || connection.current !== null) return;
       connection.current = peerConnection;
 
-      let response = await fetch(`/stream/cameras/${encodeURIComponent(selectedCameraPath)}/start`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+      const response = await fetch(
+        `/stream/cameras/${encodeURIComponent(selectedCameraPath)}/start`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(peerConnection.localDescription),
         },
-        body: JSON.stringify(peerConnection.localDescription)
-      });
-      let remoteOffer = await response.json();
-      peerConnection.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+      );
+      const remoteOffer = await response.json();
+      peerConnection.setRemoteDescription(
+        new RTCSessionDescription(remoteOffer),
+      );
 
       setSelectedCamera(selectedCameraPath);
 
@@ -94,52 +100,58 @@ function App() {
       */
     };
 
-    peerConnection.addTransceiver("video", {"direction": "sendrecv"})
-    peerConnection.addTransceiver("audio", {"direction": "sendrecv"})
+    peerConnection.addTransceiver("video", { direction: "sendrecv" });
+    peerConnection.addTransceiver("audio", { direction: "sendrecv" });
 
-    let offer = await peerConnection.createOffer();
+    const offer = await peerConnection.createOffer();
     peerConnection.setLocalDescription(offer);
   };
 
   return (
     <div className="App">
       <div className="camera-select">
-        <label>Select Camera: </label>
-        <select value={selectedCamera} onChange={handleCameraChange}>
+        <label htmlFor="cameraSelect">Select Camera: </label>
+        <select
+          id="cameraSelect"
+          value={selectedCamera}
+          onChange={handleCameraChange}
+        >
           {cameras.map((camera, index) => {
-            return <option key={index} value={camera}>{camera}</option>
+            return (
+              <option key={camera || `empty-${index}`} value={camera}>
+                {camera}
+              </option>
+            );
           })}
         </select>
         {selectedCamera && (
-        <div>
-          <div id="videoDiv">
-
-          </div>
-          {/* <div className="camera-feed">
+          <div>
+            <div id="videoDiv" />
+            {/* <div className="camera-feed">
             <img src={`/stream/video_feed/${selectedCamera}`} alt="Camera Frame" width="600" height="400" />
           </div> */}
-          <div className="slider-container">
-            <label htmlFor="fpsSlider">FPS:</label>
-            <input
-              id="fpsSlider"
-              type="range"
-              min="0"
-              max="100"
-              value={fpsSlider}
-              onChange={(event) => setFpsSlider(event.target.value)}
-            />
-            <label htmlFor="resolutionSlider">Resolution:</label>
-            <input
-              id="resolutionSlider"
-              type="range"
-              min="0"
-              max="100"
-              value={resolutionSlider}
-              onChange={(event) => setResolutionSlider(event.target.value)}
-            />
+            <div className="slider-container">
+              <label htmlFor="fpsSlider">FPS:</label>
+              <input
+                id="fpsSlider"
+                type="range"
+                min="0"
+                max="100"
+                value={fpsSlider}
+                onChange={(event) => setFpsSlider(event.target.value)}
+              />
+              <label htmlFor="resolutionSlider">Resolution:</label>
+              <input
+                id="resolutionSlider"
+                type="range"
+                min="0"
+                max="100"
+                value={resolutionSlider}
+                onChange={(event) => setResolutionSlider(event.target.value)}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );
