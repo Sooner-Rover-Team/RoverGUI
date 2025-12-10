@@ -21,6 +21,8 @@ jobs:
 
       - name: Cache Rust build
         uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "backend -> target"
 
       - name: Build the project
         run: cargo build
