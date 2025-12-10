@@ -1,6 +1,6 @@
 use std::{collections::HashMap, error::Error, path::PathBuf};
 
-use rocket::{get, http::Status, post, routes, serde::json::Json, Config, State};
+use rocket::{get, http::Status, post, put, routes, serde::json::Json, Config, State};
 use utils::{CameraMode, H264CameraReader, WebcamManager};
 use v4l::Device;
 use webrtc::peer_connection::sdp::session_description::RTCSessionDescription;
@@ -71,7 +71,7 @@ async fn get_camera_modes(
 }
 
 // Set the current camera mode for the camera path
-#[get("/cameras/<camera_path>/modes/set/<mode_id>")]
+#[put("/cameras/<camera_path>/modes/set/<mode_id>")]
 async fn get_camera_mode_set(
     camera_path: &str,
     mode_id: usize,

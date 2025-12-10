@@ -89,7 +89,7 @@ function App() {
         console.log(await modesResponse.json());
 
         // Set the current mode for the camera by the index found in the top api request
-        let setResponse = await fetch(`/stream/cameras/${encodeURIComponent(selectedCameraPath)}/modes/set/${1}`);
+        let setResponse = await fetch(`/stream/cameras/${encodeURIComponent(selectedCameraPath)}/modes/set/${1}`, { method: "PUT" });
         console.log(setResponse.status);
       */
     };
