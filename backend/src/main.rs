@@ -72,7 +72,7 @@ async fn get_camera_modes(
 
 // Set the current camera mode for the camera path
 #[put("/cameras/<camera_path>/modes/set/<mode_id>")]
-async fn get_camera_mode_set(
+async fn put_camera_mode_set(
     camera_path: &str,
     mode_id: usize,
     state: &State<AppState>,
@@ -128,7 +128,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 get_camera_feed,
                 get_camera_mode,
                 get_camera_modes,
-                get_camera_mode_set
+                put_camera_mode_set
             ],
         )
         .manage(AppState {
