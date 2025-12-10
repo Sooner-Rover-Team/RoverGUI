@@ -6,7 +6,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  ci:
+  backend:
     runs-on: ubuntu-24.04-arm
 
     defaults:
@@ -30,3 +30,28 @@ jobs:
 
       - name: Run tests
         run: cargo test
+
+  frontend:
+    runs-on: ubuntu-24.04-arm
+
+    defaults:
+      run:
+        working-directory: react-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: "react-app/package-lock.json"
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm exec biome lint
