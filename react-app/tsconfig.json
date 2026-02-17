@@ -39,7 +39,8 @@
     "skipLibCheck": true,
   },
   "include": [
-    "src"
+    "src",
+    "tests/cameras.test.ts"
   ], //
   "exclude": [
     "node_modules",
