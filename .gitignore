@@ -10,6 +10,9 @@ __pycache__/
 /target/
 **/*.rs.bk
 
+# Vite shit
+/node_modules/
+
 # Distribution / packaging
 .Python
 build/
