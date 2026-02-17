@@ -3,15 +3,15 @@ import "./App.css";
 
 //filepath for testing (DELETE LATER): ../../../GitHub/Automomous/examples/ARTrackerTest/videos
 function App() {
-  const [fpsSlider, setFpsSlider] = useState(50); // Initial fps slider value
-  const [resolutionSlider, setResolutionSlider] = useState(50); // Initial resolution slider value
+  const [fpsSlider, setFpsSlider] = useState<number>(50); // Initial fps slider value
+  const [resolutionSlider, setResolutionSlider] = useState<number>(50); // Initial resolution slider value
 
   //Need to create a selection of camera names to choose from, and then pass that camera name
   //to the image source to get the video feed from the server
 
-  const [cameras, setCameras] = useState([]); //getting available devices from server
+  const [cameras, setCameras] = useState<string[] | null>([]); //getting available devices from server
 
-  const connection = useRef(null);
+  const connection = useRef<RTCPeerConnection | null>(null);
 
   /*//Effect to get the camera names from the server
   useEffect(() => {
@@ -41,7 +41,7 @@ function App() {
   //to control the camera feed
   const [selectedCamera, setSelectedCamera] = useState("");
 
-  const handleCameraChange = async (event) => {
+  const handleCameraChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCameraPath = event.target.value;
 
     if (connection.current !== null) {
@@ -54,12 +54,12 @@ function App() {
 
     const peerConnection = new RTCPeerConnection();
     peerConnection.ontrack = (e) => {
-      const el = document.createElement(e.track.kind);
-      el.srcObject = e.streams[0];
+      const el = document.createElement(e.track.kind) as HTMLMediaElement;
+      el.srcObject = e.streams[0] ?? null;
       el.autoplay = true;
       el.controls = true;
 
-      document.getElementById("videoDiv").appendChild(el);
+      document.getElementById("videoDiv")?.appendChild(el);
     };
 
     peerConnection.onicecandidate = async (e) => {
@@ -117,7 +117,8 @@ function App() {
           onChange={handleCameraChange}
         >
           {
-            cameras.map((camera, index) => {
+            // TODO: Add an error display if cameras is null
+            cameras?.map((camera, index) => {
               return (
                 <option key={camera || `empty-${index}`
                 } value={camera} >
@@ -142,7 +143,7 @@ function App() {
                   min="0"
                   max="100"
                   value={fpsSlider}
-                  onChange={(event) => setFpsSlider(event.target.value)
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFpsSlider(Number(event.target.value))
                   }
                 />
                 < label htmlFor="resolutionSlider" > Resolution: </label>
@@ -152,7 +153,7 @@ function App() {
                   min="0"
                   max="100"
                   value={resolutionSlider}
-                  onChange={(event) => setResolutionSlider(event.target.value)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setResolutionSlider(Number(event.target.value))}
                 />
               </div>
             </div>
