@@ -108,50 +108,55 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <div className="camera-select">
-        <label htmlFor="cameraSelect">Select Camera: </label>
-        <select
+    <div className="App" >
+      <div className="camera-select" >
+        <label htmlFor="cameraSelect" > Select Camera: </label>
+        < select
           id="cameraSelect"
           value={selectedCamera}
           onChange={handleCameraChange}
         >
-          {cameras.map((camera, index) => {
-            return (
-              <option key={camera || `empty-${index}`} value={camera}>
-                {camera}
-              </option>
-            );
-          })}
+          {
+            cameras.map((camera, index) => {
+              return (
+                <option key={camera || `empty-${index}`
+                } value={camera} >
+                  {camera}
+                </option>
+              );
+            })
+          }
         </select>
-        {selectedCamera && (
-          <div>
-            <div id="videoDiv" />
-            {/* <div className="camera-feed">
+        {
+          selectedCamera && (
+            <div>
+              <div id="videoDiv" />
+              {/* <div className="camera-feed">
             <img src={`/stream/video_feed/${selectedCamera}`} alt="Camera Frame" width="600" height="400" />
           </div> */}
-            <div className="slider-container">
-              <label htmlFor="fpsSlider">FPS:</label>
-              <input
-                id="fpsSlider"
-                type="range"
-                min="0"
-                max="100"
-                value={fpsSlider}
-                onChange={(event) => setFpsSlider(event.target.value)}
-              />
-              <label htmlFor="resolutionSlider">Resolution:</label>
-              <input
-                id="resolutionSlider"
-                type="range"
-                min="0"
-                max="100"
-                value={resolutionSlider}
-                onChange={(event) => setResolutionSlider(event.target.value)}
-              />
+              < div className="slider-container" >
+                <label htmlFor="fpsSlider" > FPS: </label>
+                < input
+                  id="fpsSlider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={fpsSlider}
+                  onChange={(event) => setFpsSlider(event.target.value)
+                  }
+                />
+                < label htmlFor="resolutionSlider" > Resolution: </label>
+                < input
+                  id="resolutionSlider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={resolutionSlider}
+                  onChange={(event) => setResolutionSlider(event.target.value)}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

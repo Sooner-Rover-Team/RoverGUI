@@ -32,7 +32,7 @@
     "strict": true,
     "jsx": "react-jsx",
     "noImplicitAny": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
