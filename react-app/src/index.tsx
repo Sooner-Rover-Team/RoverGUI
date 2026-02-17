@@ -9,4 +9,4 @@ if (!rootElement) throw new Error("Root element not found");
 const root = createRoot(rootElement);  // Use rootElement, not getElementById again
 root.render(<App />);
 
-reportWebVitals();
+reportWebVitals(console.log);
