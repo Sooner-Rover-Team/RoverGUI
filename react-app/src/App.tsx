@@ -12,6 +12,7 @@ function App() {
   const [cameras, setCameras] = useState<string[] | null>([]); //getting available devices from server
 
   const connection = useRef<RTCPeerConnection | null>(null);
+  const videoDivRef = useRef<HTMLDivElement | null>(null);
 
   /*//Effect to get the camera names from the server
   useEffect(() => {
@@ -54,6 +55,9 @@ function App() {
     if (connection.current !== null) {
       console.log("stream: closing current connection.", selectedCameraPath);
       connection.current.close();
+      if (videoDivRef.current) {
+        videoDivRef.current.innerHTML = "";
+      }
     }
 
     if (selectedCameraPath === "") {
@@ -100,7 +104,18 @@ function App() {
         });
       };
 
-      document.getElementById("videoDiv")?.appendChild(el);
+      if (videoDivRef.current) {
+        videoDivRef.current.appendChild(el);
+        console.debug(
+          "stream: added HTMLMediaElement to videoDiv.",
+          selectedCameraPath,
+        );
+      } else {
+        console.error(
+          "stream: videoDiv missing; cannot append media element.",
+          selectedCameraPath,
+        );
+      }
     };
 
     peerConnection.onicecandidate = async (e) => {
@@ -185,38 +200,40 @@ function App() {
             );
           })}
         </select>
-        {selectedCamera && (
-          <div>
-            <div id="videoDiv" />
-            {/* <div className="camera-feed">
+        <div>
+          <div id="videoDiv" ref={videoDivRef} />
+          {selectedCamera && (
+            <div>
+              {/* <div className="camera-feed">
             <img src={`/stream/video_feed/${selectedCamera}`} alt="Camera Frame" width="600" height="400" />
           </div> */}
-            <div className="slider-container">
-              <label htmlFor="fpsSlider"> FPS: </label>
-              <input
-                id="fpsSlider"
-                type="range"
-                min="0"
-                max="100"
-                value={fpsSlider}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setFpsSlider(Number(event.target.value))
-                }
-              />
-              <label htmlFor="resolutionSlider"> Resolution: </label>
-              <input
-                id="resolutionSlider"
-                type="range"
-                min="0"
-                max="100"
-                value={resolutionSlider}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setResolutionSlider(Number(event.target.value))
-                }
-              />
+              <div className="slider-container">
+                <label htmlFor="fpsSlider"> FPS: </label>
+                <input
+                  id="fpsSlider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={fpsSlider}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setFpsSlider(Number(event.target.value))
+                  }
+                />
+                <label htmlFor="resolutionSlider"> Resolution: </label>
+                <input
+                  id="resolutionSlider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={resolutionSlider}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setResolutionSlider(Number(event.target.value))
+                  }
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
