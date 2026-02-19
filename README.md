@@ -1,26 +1,53 @@
-# Purpose
-The purpose of RoverGUI is to provide a live camera view to anyone operating the rover via a web browser! While RoverGUI is meant to be used by anyone, it is important to keep in mind that non-autonomous members will likely
-be using the GUI as a live camera view like this would not be allowed for Autonomous operation during URC.
+# RoverGUI
 
-# Dependencies
-The following dependencies are under the assertion that both the frontend and backend are running on an **x86-64 linux operation system**. Each bullet is a link to the corresponding dependency's download/install page.
+RoverGUI provides a live camera view to anyone operating the rover via a web browser! Non-Autonomous members will likely be using the GUI, so it's easy to use.
 
-## Frontend Dependencies
-* [NodeJS](https://nodejs.org/en/download)
-* [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+## Usage
+
+First, open two `ssh` windows to the Rover. Run both the backend and frontend, starting **with the backend first**:
+
+In window 1:
+
+```console
+~ $ cd RoverGUI/backend
+~/RoverGUI/backend $ cargo run
+```
+
+In window 2:
+
+```console
+~ $ cd RoverGUI/react-app
+~/RoverGUI/backend $ npm run start --host
+```
+
+From your laptop, **open the GUI in a web browser with its URL**: (i.e., open this link in Firefox/Chrome: [http://192.168.1.68:3000](http://192.168.1.68:3000), where `192.168.1.68` is the Rover's IP address, and `3000` is the port from the frontend window above; the port might be something different, so please look carefully). You should then be presented with a page with a dropdown list of available cameras. Select a camera -- then, a live stream should be visible!
+
+## Dependencies
+
+The following dependencies are under the assertion that both the frontend and backend are running on an **x86-64 Linux operating system**. Each bullet is a link to the corresponding dependency's download/install page.
+
+### Frontend
+
+- [NodeJS](https://nodejs.org/en/download)
+- [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
 > [!TIP]
 > It is recommended to install NodeJS using the **nvm** package manager on linux. This simplifies the process of both installing and upgrading NodeJS versions. This also automatically installs NPM for you! The NodeJS download page should provide instructions given that **Linux**, **nvm**, and **npm** are selected.
 
-## Backend Dependencies
-* [Rust](https://rust-lang.org/tools/install/)
-* Video4Linux (v4l)
+### Backend
+
+- [Rust](https://rust-lang.org/tools/install/)
+- Video4Linux (v4l)
 
 > [!IMPORTANT]
-> Video4Linux is a kernel-level driver dependency. Usually it is included with almost all linux distros. If it isn't, please consult your distro's documentation!
+> Video4Linux is a kernel-level driver dependency. It is usually included with most Linux distros. If it isn't, please consult your distro's documentation for installation instructions!
 
-# Frontend (`/react-app`)
-## Installing Frontend's Package Dependencies
+## Instructions
+
+### Frontend
+
+#### Installing Frontend's Package Dependencies
+
 Before running the frontend, you will need to install the package's dependencies using your favorite terminal!
 
 ```bash
@@ -54,25 +81,18 @@ npm notice
 # Done!
 ```
 
-## Running the frontend
+#### Running the frontend
+
 ```bash
 # To start the frontend, simply run the following command in the frontend's folder.
-npm run start
+npm run start --host
 
 # Your output should look like this:
-Compiled successfully!
+VITE v7.3.1  ready in 96 ms
 
-You can now view react-app in the browser.
-
-  Local:            http://localhost:3000
-  On Your Network:  http://192.168.2.62:3000
-
-Note that the development build is not optimized.
-To create a production build, use npm run build.
-
-webpack compiled successfully
-
-# Done!
+➜  Local:   http://localhost:5173/
+➜  Network: http://192.168.1.68:5173/
+➜  press h + enter to show help
 ```
 
 The URLs that are outputted by this command (i.e. http://localhost:3000) are the same URLs that you use to see the GUI from your web browser. You may hold ctrl and then click on the links to view them or simply copy & paste them into your browser.
@@ -88,11 +108,14 @@ The URLs that are outputted by this command (i.e. http://localhost:3000) are the
 Would you like to run the app on another port instead? › (Y/n)
 ```
 
-## Stopping the frontend
-In the same terminal in which you are running the frontend, simply do `Ctrl+C` to send a SIGINT signal to interrupt the frontend (this stops it)!
+#### Stopping the frontend
 
-# Backend (`/backend`)
-## Building the backend crate and its Cargo dependencies
+In the same terminal in which you are running the frontend, press `Ctrl+C` to send a SIGINT signal to interrupt the frontend (this stops it)!
+
+### Backend (`/backend`)
+
+#### Building the backend crate and its Cargo dependencies
+
 Before running the backend, you will need to build the frontend along with all of its dependencies.
 
 ```bash
@@ -135,6 +158,7 @@ cargo build
 ```
 
 ## Running the backend
+
 ```bash
 # Simply run:
 cargo run
@@ -176,8 +200,14 @@ arget(s) in 0.24s
 
 The output of this command tells important information about the backend like its address, port, and its available routes. In this case, the frontend would need to access the backend from the URL `http://127.0.0.1:3600`.
 
-## Stopping the backend
+### Stopping the backend
+
 In the same terminal in which you are running the backend, simply do `Ctrl+C` to send a SIGINT signal to interrupt the backend (this stops it)!
 
-# Using RoverGUI
-Simply open the GUI in a web browser with its URL (i.e. http://localhost:3000). You should then be presented with a page that has a dropdown for the different camera paths that are available on the system. Simply select a path and then the corresponding live camera stream should be visible!
+### The "fake" backend
+
+There's a `fake_backend` binary you can use to test the frontend on a non-Linux computer (i.e., macOS or Windows). To use it, just type: `NUM_CAMERAS=1 cargo run --bin fake_backend $NUM_CAMERAS`. You can set `NUM_CAMERAS` to any value you'd like.
+
+Then, open up the frontend as described above. It'll connect successfully!
+
+You can press `Ctrl+C` to stop the fake backend from running.
