@@ -339,7 +339,12 @@ impl CameraThreadHandle {
             .ok_or("V4l Node Not Found")?;
         let mut device = Device::new(node.index())?;
         let modes = CameraMode::fetch_all(&device)?;
-        let initial_mode = *modes.last().ok_or("Error Creating a CameraThreadHandle: Failed to initialize camera as no valid Camera operating modes were provided by video4linux. (Check the camera as this was an OS-level issue!)")?; // The last camera mode tends to be the one with the best resolution and fps.
+        let initial_mode = *modes.last().ok_or(
+            "Error creating a CameraThreadHandle: \
+                Failed to initialize camera, as no valid camera operating \
+                modes were provided by Video4Linux. \
+                (Check the camera, as this was an OS-level issue!)",
+        )?; // The last camera mode tends to be the one with the best resolution and fps.
         thread::spawn(move || {
             let mut reader = H264CameraReader::new(&mut device, initial_mode).unwrap();
             let mut rtc_txs: Vec<Sender<Vec<u8>>> = Vec::new();
@@ -379,9 +384,12 @@ impl CameraThreadHandle {
             camera_path,
             manual_shutdown_needed,
             cam_mode_tx,
-            current_mode: *modes
-                .last()
-                .ok_or("Error Creating a CameraThreadHandle: Failed to initialize camera as no valid Camera operating modes were provided by video4linux. (Check the camera as this was an OS-level issue!)")?,
+            current_mode: *modes.last().ok_or(
+                "Error creating a CameraThreadHandle: \
+                    Failed to initialize camera, as no valid camera operating \
+                    modes were provided by Video4Linux. \
+                    (Check the camera, as this was an OS-level issue!)",
+            )?,
             camera_modes: modes,
             sink_flush_needed,
             tx_sink,
