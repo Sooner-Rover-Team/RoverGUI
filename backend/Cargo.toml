@@ -18,6 +18,7 @@ tokio-util = { version = "0.7.12", features = ["io"] }
 webrtc = "0.11.0"
 openh264 = "0.6.2"
 jpeg-decoder = "0.3.1"
+mp4 = "0.14.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 v4l = "0.14.0"
