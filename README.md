@@ -24,25 +24,16 @@ From your laptop, **open the GUI in a web browser with its URL**: (i.e., open th
 
 ## Dependencies
 
-The following dependencies are under the assertion that both the frontend and backend are running on an **x86-64 Linux operating system**. Each bullet is a link to the corresponding dependency's download/install page.
+You **must** download and install the following dependencies:
 
-### Frontend
+- `Node.js`: [Download Node.js](https://nodejs.org/en/download)
+- `npm`: [Downloading and installing Node.js and `npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+  - note: `npm` is usually included with Node.js.
+- Rust (`cargo`): [An installer for the systems programming language Rust](https://rustup.rs/)
 
-- [NodeJS](https://nodejs.org/en/download)
-- [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+If you're running Linux, and you want to use the real backend (i.e., you'd like to stream real video from real cameras), you should also install `Video4Linux` on your Linux distro. See: [pkgs.org - v4l-utils](https://pkgs.org/search/?q=v4l-utils).
 
-> [!TIP]
-> It is recommended to install NodeJS using the **nvm** package manager on linux. This simplifies the process of both installing and upgrading NodeJS versions. This also automatically installs NPM for you! The NodeJS download page should provide instructions given that **Linux**, **nvm**, and **npm** are selected.
-
-### Backend
-
-- [Rust](https://rust-lang.org/tools/install/)
-- Video4Linux (v4l)
-
-> [!IMPORTANT]
-> Video4Linux is a kernel-level driver dependency. It is usually included with most Linux distros. If it isn't, please consult your distro's documentation for installation instructions!
-
-## Instructions
+## Detailed Instructions
 
 ### Frontend
 
