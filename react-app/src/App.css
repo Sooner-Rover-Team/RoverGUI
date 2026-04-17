@@ -1,5 +1,7 @@
 .App {
   text-align: center;
+  background-color: #282c34;
+  min-height: 100vh;
 }
 
 .App-logo {
@@ -14,14 +16,24 @@
 }
 
 .camera-select {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  padding: 100px;
+}
+
+.camera-grid {
+  width: 100%;
+}
+
+.camera-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .camera-feed {

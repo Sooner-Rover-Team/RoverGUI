@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
+import CameraGrid, { CameraContainer } from "./CameraGrid";
 
 //filepath for testing (DELETE LATER): ../../../GitHub/Automomous/examples/ARTrackerTest/videos
 function App() {
@@ -34,6 +35,14 @@ function App() {
   //On change of the camera selection, add components for camera feed and sliders
   //to control the camera feed
   const [selectedCamera, setSelectedCamera] = useState("");
+
+  const [cameraContainers, setCameraContainers] = useState<CameraContainer[]>([
+    { id: '1', name: 'Front Door', size: 'large' },
+    { id: '2', name: 'Hallway', size: 'large' },
+    { id: '3', name: 'Other Camera', size: 'small' },
+    { id: '4', name: 'Other Camera', size: 'small' },
+    { id: '5', name: 'Other Camera', size: 'small' },
+  ])
 
   const handleCameraChange = async (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -182,49 +191,42 @@ function App() {
           value={selectedCamera}
           onChange={handleCameraChange}
         >
-          {// TODO: Add an error display if cameras is null
-          cameras?.map((camera, index) => {
-            return (
-              <option key={camera || `empty-${index}`} value={camera}>
-                {camera}
-              </option>
-            );
-          })}
+          {cameras?.map((camera, index) => (
+            <option key={camera || `empty-${index}`} value={camera}>
+              {camera}
+            </option>
+          ))}
         </select>
-        <div>
-          <div id="videoDiv" ref={videoDivRef} />
-          {selectedCamera && (
-            <div>
-              {/* <div className="camera-feed">
-            <img src={`/stream/video_feed/${selectedCamera}`} alt="Camera Frame" width="600" height="400" />
-          </div> */}
-              <div className="slider-container">
-                <label htmlFor="fpsSlider"> FPS: </label>
-                <input
-                  id="fpsSlider"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={fpsSlider}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setFpsSlider(Number(event.target.value))
-                  }
-                />
-                <label htmlFor="resolutionSlider"> Resolution: </label>
-                <input
-                  id="resolutionSlider"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={resolutionSlider}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setResolutionSlider(Number(event.target.value))
-                  }
-                />
-              </div>
-            </div>
-          )}
+      </div>
+      <div className="camera-content">
+        <div className="camera-grid">
+          <CameraGrid cameras={cameraContainers} />
+          {/* <div id="videoDiv" ref={videoDivRef} /> */}
         </div>
+  
+        {selectedCamera && (
+          <div className="slider-container">
+            <label htmlFor="fpsSlider"> FPS: </label>
+            <input
+              id="fpsSlider"
+              type="range"
+              min="0"
+              max="100"
+              value={fpsSlider}
+              onChange={(e) => setFpsSlider(Number(e.target.value))}
+            />
+  
+            <label htmlFor="resolutionSlider"> Resolution: </label>
+            <input
+              id="resolutionSlider"
+              type="range"
+              min="0"
+              max="100"
+              value={resolutionSlider}
+              onChange={(e) => setResolutionSlider(Number(e.target.value))}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
