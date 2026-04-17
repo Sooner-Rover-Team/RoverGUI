@@ -14,15 +14,6 @@ function App() {
   const connection = useRef<RTCPeerConnection | null>(null);
   const videoDivRef = useRef<HTMLDivElement | null>(null);
 
-  /*//Effect to get the camera names from the server
-  useEffect(() => {
-    fetch('/video_feed/available_devices')
-      .then(response => response.json())
-      .then(data => {
-        updateCameraNames(data)
-      })
-  }, [])*/
-
   // Fetch Camera(s) Information from Server
   useEffect(() => {
     (async () => {
