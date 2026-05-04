@@ -234,7 +234,7 @@ function App() {
       </div>
       <div className="camera-content">
         <div className="camera-grid">
-          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} connections={cameraConnections} />
+          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} />
         </div>
   
         {selectedCamera && (
