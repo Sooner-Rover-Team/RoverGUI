@@ -22,7 +22,6 @@ const CameraGrid: React.FC<CameraGridProps> = ({ cameras }) => {
           <div key={cam.id} className={`camera-tile ${cam.size}`}>
             <div className="camera-title">{cam.name}</div>
             <div className="camera-body">
-            {!cam.stream && <div className="loading-indicator">Loading...</div>}
             {cam.connection && cam.stream ? (
               <video
               ref={(el) => {
