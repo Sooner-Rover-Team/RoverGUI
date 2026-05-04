@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  background-color: #282c34;
+  background-color: #FFF0F0;
   min-height: 100vh;
 }
 
@@ -17,12 +17,13 @@
 
 .camera-select {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  padding: 100px;
+  background-color: #841617;
+  padding: 15px;
   gap: 10px;
 }
 
