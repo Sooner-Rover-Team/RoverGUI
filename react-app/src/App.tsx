@@ -37,11 +37,11 @@ function App() {
   const [selectedCamera, setSelectedCamera] = useState("");
 
   const [cameraContainers, setCameraContainers] = useState<CameraContainer[]>([
-    { id: '1', name: 'Camera 1', size: 'large', connection: null, videoElement: null },
-    { id: '2', name: 'Camera 2', size: 'large', connection: null, videoElement: null },
-    { id: '3', name: 'Camera 3', size: 'small', connection: null, videoElement: null },
-    { id: '4', name: 'Camera 4', size: 'small', connection: null, videoElement: null },
-    { id: '5', name: 'Camera 5', size: 'small', connection: null, videoElement: null },
+    { id: '1', name: 'Camera 1', size: 'large', connection: null, stream: null },
+    { id: '2', name: 'Camera 2', size: 'large', connection: null, stream: null },
+    { id: '3', name: 'Camera 3', size: 'small', connection: null, stream: null },
+    { id: '4', name: 'Camera 4', size: 'small', connection: null, stream: null },
+    { id: '5', name: 'Camera 5', size: 'small', connection: null, stream: null },
   ])
 
   const handleCameraChange = async (
@@ -74,7 +74,7 @@ function App() {
 
     // Find the first available container
     const availableContainer = cameraContainers.find(
-      (container) => container.videoElement === null && container.connection === null
+      (container) => container.stream === null && container.connection === null
     );
  
     if (!availableContainer) {
@@ -107,18 +107,7 @@ function App() {
       );
 
       if(e.track.kind == "video" && e.streams.length > 0) {
-        const videoEl = document.createElement("video");
-        videoEl.autoplay = true;
-        videoEl.playsInline = true;
-        videoEl.controls = true;
-        videoEl.srcObject = e.streams[0] ?? null;
-
-        if (videoEl.srcObject === null) {
-          console.error(
-            "stream: video `src` was set to `null` for path: ",
-            cameraId,
-          );
-        }
+        const stream = e.streams[0];
 
         setCameraContainers((prev) => {
           return prev.map((container) =>
@@ -126,15 +115,12 @@ function App() {
               ? {
                   ...container,
                   name: cameraId,
-                  videoElement: videoEl,
+                  stream: stream || null,
                   connection: peerConnection,
                 }
               : container
           );
         });
-
-        // Store ref for cleanup
-        videoElementsRef.current.set(cameraId, videoEl);
 
         console.debug("stream: created video element for track event", {
           cameraId,

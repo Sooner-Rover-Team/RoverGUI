@@ -23,6 +23,7 @@
   font-size: calc(10px + 2vmin);
   color: white;
   padding: 100px;
+  gap: 10px;
 }
 
 .camera-grid {
