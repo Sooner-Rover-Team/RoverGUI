@@ -26,11 +26,6 @@ function App() {
     })();
   }, []);
 
-  // //test data for camera names
-  // useEffect(() => {
-  //   setCameras([null, 'Camera 1', 'Camera 2', 'Camera 3'])
-  // }, [])
-
   //On change of the camera selection, add components for camera feed and sliders
   //to control the camera feed
   const [selectedCamera, setSelectedCamera] = useState("");
@@ -80,6 +75,18 @@ function App() {
       console.warn("stream: no available containers for camera");
       return;
     }
+
+    setCameraContainers((prev) =>
+      prev.map((container) =>
+        container.id === availableContainer.id
+          ? {
+              ...container,
+              name: cameraId,
+              connection: peerConnection,
+            }
+          : container
+      )
+    );
 
     const peerConnection = new RTCPeerConnection();
 
@@ -228,7 +235,6 @@ function App() {
       <div className="camera-content">
         <div className="camera-grid">
           <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} connections={cameraConnections} />
-          {/* <div id="videoDiv" ref={videoDivRef} /> */}
         </div>
   
         {selectedCamera && (
