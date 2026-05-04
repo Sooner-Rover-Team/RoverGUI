@@ -8,12 +8,11 @@
     padding: 16px;
   }
   
-  /* Base tile styling */
   .camera-tile {
     border-radius: 8px;
     color: white;
     display: flex;
-    flex-direction: column; /* 👈 key change */
+    flex-direction: column;
     font-weight: bold;
     background: linear-gradient(to bottom, black, gray);
     border: 6px solid #841617;
@@ -33,6 +32,8 @@
     flex: 1; /* takes remaining space */
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    position: relative;
   }
   
   /* Size variants */
@@ -44,4 +45,14 @@
   .camera-tile.small {
     height: 250px;
     grid-column: span 2; /* 1/3 width */
+  }
+
+  .camera-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
