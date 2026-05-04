@@ -212,6 +212,16 @@ function App() {
       const updatedConnections = new Map(cameraConnections);
       updatedConnections.delete(selectedCamera);
       setCameraConnections(updatedConnections);
+
+      setCameraContainers((prev) =>
+        prev.map((container) =>
+          container.name === selectedCamera
+            ? { ...container, stream: null, connection: null, name: '' }
+            : container
+        )
+      );
+
+      setSelectedCamera("");
     }
   };
 
@@ -234,7 +244,7 @@ function App() {
       </div>
       <div className="camera-content">
         <div className="camera-grid">
-          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} />
+          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} setSelectedCamera={setSelectedCamera} />
         </div>
   
         {selectedCamera && (

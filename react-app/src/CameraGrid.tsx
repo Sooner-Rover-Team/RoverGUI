@@ -13,9 +13,15 @@ interface CameraGridProps {
   cameras: CameraContainer[];
   onRemoveCamera: (cameraId: string) => void;
   selectedCamera: string;
+  setSelectedCamera: (cameraId: string) => void;
 }
 
-const CameraGrid: React.FC<CameraGridProps> = ({ cameras, selectedCamera }) => {
+const CameraGrid: React.FC<CameraGridProps> = ({
+  cameras,
+  selectedCamera,
+  setSelectedCamera,
+  onRemoveCamera,
+}) => {
   return (
     <div className="grid-container">
       {cameras.map((cam) => (
@@ -24,8 +30,19 @@ const CameraGrid: React.FC<CameraGridProps> = ({ cameras, selectedCamera }) => {
           className={`camera-tile ${cam.size} ${
             cam.name === selectedCamera ? "selected" : ""
           }`}
+          onClick={() => setSelectedCamera(cam.name)}
         >
-          <div className="camera-title">{cam.name}</div>
+          <div className="camera-header">
+            <div className="camera-title">{cam.name}</div>
+            <button
+              className="remove-button"
+              onClick={() => {
+                onRemoveCamera(cam.id);
+              }}
+            >
+              Remove Camera
+            </button>
+          </div>
           <div className="camera-body">
             {cam.connection && cam.stream ? (
               <video
