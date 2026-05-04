@@ -60,7 +60,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
               <div className="camera-placeholder">
                 <h1>No Camera Added</h1>
                 <h3>
-                  Select a camera path and press "Add Camera" to add new feeds.
+                  Select a camera in camera dropdown and press "Add Camera" to add new feed.
                 </h3>
               </div>
             )}
