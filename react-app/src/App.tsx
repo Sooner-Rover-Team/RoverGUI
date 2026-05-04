@@ -13,7 +13,6 @@ function App() {
   const [cameras, setCameras] = useState<string[] | null>([]); //getting available devices from server
 
   const [cameraConnections, setCameraConnections] = useState<Map<string, RTCPeerConnection>>(new Map());
-  const videoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map());
 
   // Fetch Camera(s) Information from Server
   useEffect(() => {
@@ -188,8 +187,6 @@ function App() {
 
       // Cleanup connection on failure
       peerConnection.close();
-
-      videoElementsRef.current.delete(selectedCamera);
 
       setCameraContainers((prev) =>
         prev.map((c) =>
