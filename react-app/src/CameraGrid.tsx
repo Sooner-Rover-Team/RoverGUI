@@ -12,14 +12,19 @@ export interface CameraContainer {
 interface CameraGridProps {
   cameras: CameraContainer[];
   onRemoveCamera: (cameraId: string) => void;
-  connections: Map<string, RTCPeerConnection>;
+  selectedCamera: string;
 }
 
-const CameraGrid: React.FC<CameraGridProps> = ({ cameras }) => {
+const CameraGrid: React.FC<CameraGridProps> = ({ cameras, selectedCamera }) => {
   return (
     <div className="grid-container">
       {cameras.map((cam) => (
-        <div key={cam.id} className={`camera-tile ${cam.size}`}>
+        <div
+          key={cam.id}
+          className={`camera-tile ${cam.size} ${
+            cam.name === selectedCamera ? "selected" : ""
+          }`}
+        >
           <div className="camera-title">{cam.name}</div>
           <div className="camera-body">
             {cam.connection && cam.stream ? (
@@ -37,7 +42,9 @@ const CameraGrid: React.FC<CameraGridProps> = ({ cameras }) => {
             ) : (
               <div className="camera-placeholder">
                 <h1>No Camera Added</h1>
-                <h3>Select a camera path and press "Add Camera" to add new feeds.</h3>
+                <h3>
+                  Select a camera path and press "Add Camera" to add new feeds.
+                </h3>
               </div>
             )}
           </div>
