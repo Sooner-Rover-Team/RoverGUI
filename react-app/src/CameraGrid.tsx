@@ -25,8 +25,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
   return (
     <div className="grid-container">
       {cameras.map((cam) => (
-        <div
-          role="button"
+        <button
           key={cam.id}
           className={`camera-tile ${cam.size} ${
             cam.name === selectedCamera ? "selected" : ""
@@ -69,7 +68,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );
