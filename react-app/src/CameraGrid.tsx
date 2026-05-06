@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import "./CameraGrid.css";
 
 export interface CameraContainer {
@@ -26,15 +26,18 @@ const CameraGrid: React.FC<CameraGridProps> = ({
     <div className="grid-container">
       {cameras.map((cam) => (
         <div
+          role="button"
           key={cam.id}
           className={`camera-tile ${cam.size} ${
             cam.name === selectedCamera ? "selected" : ""
           }`}
           onClick={() => setSelectedCamera(cam.name)}
+          onKeyDown={() => setSelectedCamera(cam.name)}
         >
           <div className="camera-header">
             <div className="camera-title">{cam.name}</div>
             <button
+              type="button"
               className="remove-button"
               onClick={() => {
                 onRemoveCamera(cam.id);
@@ -52,6 +55,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
                   }
                 }}
                 autoPlay
+                muted
                 playsInline
                 poster="/loading_indicator.png"
                 className="camera-feed"

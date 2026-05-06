@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
-import CameraGrid, { CameraContainer } from "./CameraGrid";
+import CameraGrid, { type CameraContainer } from "./CameraGrid";
 
 //filepath for testing (DELETE LATER): ../../../GitHub/Automomous/examples/ARTrackerTest/videos
 function App() {
@@ -49,7 +49,7 @@ function App() {
     setSelectedCamera(selectedCameraPath);
   };
 
-  const handleAddCamera = async (event: React.MouseEvent) => {
+  const handleAddCamera = async () => {
 
     if (selectedCamera === "") {
       console.warn("stream: no camera selected; cannot add camera.");
@@ -112,7 +112,7 @@ function App() {
       }
       );
 
-      if(e.track.kind == "video" && e.streams.length > 0) {
+      if(e.track.kind === "video" && e.streams.length > 0) {
         const stream = e.streams[0];
 
         setCameraContainers((prev) => {
@@ -240,7 +240,7 @@ function App() {
             </option>
           ))}
         </select>
-        {selectedCamera && <button onClick={handleAddCamera}>+ Add Camera</button>}
+        {selectedCamera && <button type="button" onClick={handleAddCamera}>+ Add Camera</button>}
       </div>
       <div className="camera-content">
         <div className="camera-grid">
