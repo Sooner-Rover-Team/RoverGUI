@@ -27,6 +27,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
       {cameras.map((cam) => (
         <button
           key={cam.id}
+          type="button"
           className={`camera-tile ${cam.size} ${
             cam.name === selectedCamera ? "selected" : ""
           }`}
