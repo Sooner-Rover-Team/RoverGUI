@@ -38,6 +38,25 @@ function App() {
     { id: '5', name: 'Camera 5', size: 'small', connection: null, stream: null },
   ])
 
+  const throwCameraError = (connection: RTCPeerConnection, errorMessage: string) => {
+    const cameraId = Array.from(cameraConnections.entries()).find(([_, conn]) => conn === connection)?.[0];
+
+    console.error("stream: camera connection error", {
+      cameraId,
+      errorMessage,
+    });
+
+    connection.close();
+
+    setCameraContainers((prev) =>
+      prev.map((container) =>
+        container.name === cameraId
+          ? { ...container, stream: null, connection: null, error: errorMessage }
+          : container
+      )
+    );
+  }
+
   const handleCameraChange = async (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
@@ -95,6 +114,10 @@ function App() {
         cameraId,
         state: peerConnection.connectionState,
       });
+
+      if(peerConnection.connectionState === "failed") {
+        throwCameraError(peerConnection, `Peer connection state is ${peerConnection.connectionState}`);
+      }
     };
 
     peerConnection.oniceconnectionstatechange = () => {
@@ -102,6 +125,9 @@ function App() {
         cameraId,
         state: peerConnection.iceConnectionState,
       });
+      if(peerConnection.connectionState === "failed") {
+        throwCameraError(peerConnection, `Peer connection state is ${peerConnection.connectionState}`);
+      }
     };
 
     peerConnection.ontrack = (e) => {
@@ -187,21 +213,7 @@ function App() {
       );
       setCameraConnections((prev) => new Map(prev).set(cameraId, peerConnection));
     } catch (error) {
-      console.error("stream: failed to do offer/local desc", {
-        cameraId,
-        error,
-      });
-
-      // Cleanup connection on failure
-      peerConnection.close();
-
-      setCameraContainers((prev) =>
-        prev.map((c) =>
-          c.name === selectedCamera
-            ? { ...c, videoElement: null, connection: null }
-            : c
-        )
-      );
+      throwCameraError(peerConnection, error instanceof Error ? error.message : String(error));
     }
   };
 
