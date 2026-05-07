@@ -68,7 +68,7 @@ function App() {
     setSelectedCamera(selectedCameraPath);
   };
 
-  const handleAddCamera = async () => {
+  const launchCameraStream = async (cameraConnection: CameraContainer) => {
 
     if (selectedCamera === "") {
       console.warn("stream: no camera selected; cannot add camera.");
@@ -85,19 +85,9 @@ function App() {
 
     const cameraId = selectedCamera;
 
-    // Find the first available container
-    const availableContainer = cameraContainers.find(
-      (container) => container.stream === null && container.connection === null
-    );
- 
-    if (!availableContainer) {
-      console.warn("stream: no available containers for camera");
-      return;
-    }
-
     setCameraContainers((prev) =>
       prev.map((container) =>
-        container.id === availableContainer.id
+        container.id === cameraConnection.id
           ? {
               ...container,
               name: cameraId,
@@ -143,7 +133,7 @@ function App() {
 
         setCameraContainers((prev) => {
           return prev.map((container) =>
-            container.id === availableContainer.id
+            container.id === cameraConnection.id
               ? {
                   ...container,
                   name: cameraId,
@@ -216,6 +206,20 @@ function App() {
       throwCameraError(peerConnection, error instanceof Error ? error.message : String(error));
     }
   };
+
+  const handleAddCamera = async () => {
+    // Find the first available container
+    const availableContainer = cameraContainers.find(
+      (container) => container.stream === null && container.connection === null
+    );
+ 
+    if (!availableContainer) {
+      console.warn("stream: no available containers for camera");
+      return;
+    }
+
+    await launchCameraStream(availableContainer);
+  }
 
   const handleRemoveCamera = () => {
     const connection = cameraConnections.get(selectedCamera);
