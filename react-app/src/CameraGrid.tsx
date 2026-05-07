@@ -7,6 +7,7 @@ export interface CameraContainer {
   size: "large" | "small";
   connection: RTCPeerConnection | null;
   stream: MediaStream | null;
+  error?: string | null;
 }
 
 interface CameraGridProps {
@@ -47,7 +48,12 @@ const CameraGrid: React.FC<CameraGridProps> = ({
             </button>
           </div>
           <div className="camera-body">
-            {cam.connection && cam.stream ? (
+            {cam.error ? (
+              <div className="camera-error">
+                <h1>CAMERA ERROR</h1>
+                <h3>{cam.error}</h3>
+              </div>
+            ) : cam.connection && cam.stream ? (
               <video
                 ref={(el) => {
                   if (el && el.srcObject !== cam.stream) {
@@ -64,7 +70,8 @@ const CameraGrid: React.FC<CameraGridProps> = ({
               <div className="camera-placeholder">
                 <h1>No Camera Added</h1>
                 <h3>
-                  Select a camera in camera dropdown and press "Add Camera" to add new feed.
+                  Select a camera in camera dropdown and press "Add Camera" to
+                  add new feed.
                 </h3>
               </div>
             )}
