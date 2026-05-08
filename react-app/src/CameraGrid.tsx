@@ -10,6 +10,11 @@ export interface CameraContainer {
   error?: string | null;
 }
 
+export interface ConnectionAndStream {
+    connection: RTCPeerConnection;
+    stream: MediaStream;
+}
+
 interface CameraGridProps {
   cameras: CameraContainer[];
   onRemoveCamera: (cameraId: string) => void;
@@ -63,7 +68,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
                 autoPlay
                 muted
                 playsInline
-                poster="/loading_indicator.png"
+                poster="/loading_indicator.svg"
                 className="camera-feed"
               />
             ) : (
