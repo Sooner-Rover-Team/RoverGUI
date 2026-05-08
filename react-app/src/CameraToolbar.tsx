@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type CameraContainer } from "./CameraGrid";
+import type { CameraContainer } from "./CameraGrid";
 import "./CameraToolbar.css";
 
 interface CameraToolbarProps {
@@ -282,8 +282,9 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
       </div>
 
       <div className="slider-group">
-        <label>Compression Quality</label>
+        <label htmlFor="compression-slider">Compression Quality</label>
         <input
+          id="compression-slider"
           type="range"
           min="0"
           max="100"
@@ -294,8 +295,9 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
       </div>
 
       <div className="slider-group">
-        <label>Resolution</label>
+        <label htmlFor="resolution-slider">Resolution</label>
         <input
+          id="resolution-slider"
           type="range"
           min="0"
           max="100"
@@ -316,7 +318,7 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
           </option>
         ))}
       </select>
-      <button className="button" onClick={() => {
+      <button type="button" className="button" onClick={() => {
         if (selectedCamera === "") {
           alert("stream: no camera selected; cannot launch stream.");
           return;
@@ -330,7 +332,7 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
         Launch Stream
       </button>
 
-      <button className="button" onClick={handleRelaunchStream}>
+      <button type="button" className="button" onClick={handleRelaunchStream}>
         Re-Launch
       </button>
     </div>
