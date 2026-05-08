@@ -7,9 +7,11 @@ interface CameraToolbarProps {
   cameraConnections: Map<string, RTCPeerConnection>;
   cameraContainers: CameraContainer[];
   selectedCamera: string;
+  selectedSize: "large" | "small";
   setCameraContainers: React.Dispatch<React.SetStateAction<CameraContainer[]>>;
   setCameraConnections: React.Dispatch<React.SetStateAction<Map<string, RTCPeerConnection>>>;
-  setSelectedCamera: (camera: string) => void;
+  setSelectedSize: React.Dispatch<React.SetStateAction<"large" | "small">>;
+  updateToolbar: (cameraPath: string) => void;
 }
 
 const CameraToolbar: React.FC<CameraToolbarProps> = ({
@@ -17,15 +19,16 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
   cameraConnections,
   cameraContainers,
   selectedCamera,
+  selectedSize,
   setCameraContainers,
   setCameraConnections,
-  setSelectedCamera,
+  setSelectedSize,
+  updateToolbar,
 }) => {
   const [fpsSlider, setFpsSlider] = useState<number>(50); // Initial fps slider value
   const [resolutionSlider, setResolutionSlider] = useState<number>(50); // Initial resolution slider value
 
   const  [isStreamActive, setIsStreamActive] = useState<boolean>(false);
-  const [selectedSize, setSelectedSize] = useState<"large" | "small">("large");
 
   useEffect(() => {
     if (selectedCamera === "") {
@@ -36,6 +39,24 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
     const connection = cameraConnections.get(selectedCamera);
     setIsStreamActive(connection?.connectionState === "connected" || connection?.connectionState === "connecting" || connection?.iceConnectionState === "failed");
   }, [selectedCamera, cameraConnections]);
+
+  const handleSizeChange = (size: "large" | "small") => {
+    setSelectedSize(size);
+
+    // Update the size of the currently selected camera container
+    setCameraContainers((prev) =>
+      prev.map((container) =>
+        container.name === selectedCamera
+          ? { ...container, size }
+          : container
+      )
+    );
+  };
+
+  const handleCameraChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCameraPath = event.target.value;
+    updateToolbar(selectedCameraPath);
+  };
 
   const throwCameraError = (connection: RTCPeerConnection, errorMessage: string) => {
     const cameraId = Array.from(cameraConnections.entries()).find(([_, conn]) => conn === connection)?.[0];
@@ -51,13 +72,6 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
           : container
       )
     );
-  };
-
-  const handleCameraChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedCameraPath = event.target.value;
-    console.info(`stream: camera selection changed to: \`${selectedCameraPath}\``);
-
-    setSelectedCamera(selectedCameraPath);
   };
 
   const handleLaunchStream = async (cameraConnection?: CameraContainer) => {
@@ -243,20 +257,6 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
     await handleLaunchStream(cameraContainer);
   }
 
-  const handleAddCamera = async () => {
-    // Find the first available container
-    const availableContainer = cameraContainers.find(
-      (container) => container.stream === null && container.connection === null
-    );
-
-    if (!availableContainer) {
-      console.warn("stream: no available containers for camera");
-      return;
-    }
-
-    await handleLaunchStream(availableContainer);
-  };
-
   return (
     <div className="toolbar-container">
       <button className="button" onClick={() => {
@@ -283,7 +283,7 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
             type="radio"
             value="large"
             checked={selectedSize === "large"}
-            onChange={() => setSelectedSize("large")}
+            onChange={() => handleSizeChange("large")}
           />
           Large
         </label>
@@ -293,7 +293,7 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
             type="radio"
             value="small"
             checked={selectedSize === "small"}
-            onChange={() => setSelectedSize("small")}
+            onChange={() => handleSizeChange("small")}
           />
           Small
         </label>

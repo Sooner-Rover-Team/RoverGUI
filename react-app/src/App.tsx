@@ -28,14 +28,25 @@ function App() {
   //On change of the camera selection, add components for camera feed and sliders
   //to control the camera feed
   const [selectedCamera, setSelectedCamera] = useState("");
+  const [selectedSize, setSelectedSize] = useState<"large" | "small">("large");
 
   const [cameraContainers, setCameraContainers] = useState<CameraContainer[]>([
     { id: '1', name: 'Camera 1', size: 'large', connection: null, stream: null },
     { id: '2', name: 'Camera 2', size: 'large', connection: null, stream: null },
-    { id: '3', name: 'Camera 3', size: 'small', connection: null, stream: null },
-    { id: '4', name: 'Camera 4', size: 'small', connection: null, stream: null },
-    { id: '5', name: 'Camera 5', size: 'small', connection: null, stream: null },
+    { id: '3', name: 'Camera 3', size: 'large', connection: null, stream: null },
+    { id: '4', name: 'Camera 4', size: 'large', connection: null, stream: null },
+    { id: '5', name: 'Camera 5', size: 'large', connection: null, stream: null },
   ]);
+
+  const updateToolbar = (cameraPath: string) => {
+    console.info(`stream: camera selection changed to: \`${cameraPath}\``);
+
+    setSelectedCamera(cameraPath);
+
+    const existingContainer = cameraContainers.find(container => container.name === cameraPath);
+
+    setSelectedSize(existingContainer?.size || "large");
+  };
 
   const handleRemoveCamera = () => {
     const connection = cameraConnections.get(selectedCamera);
@@ -63,16 +74,18 @@ function App() {
         <CameraToolbar
           cameras={cameras}
           selectedCamera={selectedCamera}
+          selectedSize={selectedSize}
           cameraConnections={cameraConnections}
           cameraContainers={cameraContainers}
           setCameraContainers={setCameraContainers}
           setCameraConnections={setCameraConnections}
-          setSelectedCamera={setSelectedCamera}
+          setSelectedSize={setSelectedSize}
+          updateToolbar={updateToolbar}
         />
       </div>
       <div className="camera-content">
         <div className="camera-grid">
-          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} setSelectedCamera={setSelectedCamera} />
+          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} setSelectedCamera={setSelectedCamera} updateToolbar={updateToolbar} />
         </div>
       </div>
     </div>

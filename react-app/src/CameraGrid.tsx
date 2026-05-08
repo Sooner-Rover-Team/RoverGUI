@@ -15,6 +15,7 @@ interface CameraGridProps {
   onRemoveCamera: (cameraId: string) => void;
   selectedCamera: string;
   setSelectedCamera: (cameraId: string) => void;
+  updateToolbar: (cameraPath: string) => void;
 }
 
 const CameraGrid: React.FC<CameraGridProps> = ({
@@ -22,6 +23,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
   selectedCamera,
   setSelectedCamera,
   onRemoveCamera,
+  updateToolbar,
 }) => {
   return (
     <div className="grid-container">
@@ -32,8 +34,8 @@ const CameraGrid: React.FC<CameraGridProps> = ({
           className={`camera-tile ${cam.size} ${
             cam.name === selectedCamera ? "selected" : ""
           }`}
-          onClick={() => setSelectedCamera(cam.name)}
-          onKeyDown={() => setSelectedCamera(cam.name)}
+          onClick={() => updateToolbar(cam.name)}
+          onKeyDown={() => updateToolbar(cam.name)}
         >
           <div className="camera-header">
             <div className="camera-title">{cam.name}</div>
@@ -70,7 +72,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({
               <div className="camera-placeholder">
                 <h1>No Camera Added</h1>
                 <h3>
-                  Select a camera in camera dropdown and press "Add Camera" to
+                  Select a camera in camera dropdown and press "Launch Stream" to
                   add new feed.
                 </h3>
               </div>
