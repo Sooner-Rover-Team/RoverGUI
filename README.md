@@ -17,7 +17,7 @@ In window 2:
 
 ```console
 ~ $ cd RoverGUI/react-app
-~/RoverGUI/backend $ npm run start --host
+~/RoverGUI/react-app $ pnpm start --host
 ```
 
 From your laptop, **open the GUI in a web browser with its URL**: (i.e., open this link in Firefox/Chrome: [http://192.168.1.68:3000](http://192.168.1.68:3000), where `192.168.1.68` is the Rover's IP address, and `3000` is the port from the frontend window above; the port might be something different, so please look carefully). You should then be presented with a page with a dropdown list of available cameras. Select a camera -- then, a live stream should be visible!
@@ -27,8 +27,7 @@ From your laptop, **open the GUI in a web browser with its URL**: (i.e., open th
 You **must** download and install the following dependencies:
 
 - `Node.js`: [Download Node.js](https://nodejs.org/en/download)
-- `npm`: [Downloading and installing Node.js and `npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-  - note: `npm` is usually included with Node.js.
+- `pnpm`: [Downloading and installing `pnpm`](https://pnpm.io/installation)
 - Rust (`cargo`): [An installer for the systems programming language Rust](https://rustup.rs/)
 
 If you're running Linux, and you want to use the real backend (i.e., you'd like to stream real video from real cameras), you should also install `Video4Linux` on your Linux distro. See: [pkgs.org - v4l-utils](https://pkgs.org/search/?q=v4l-utils).
@@ -46,29 +45,50 @@ Before running the frontend, you will need to install the package's dependencies
 cd react-app/
 
 # Now install the dependencies!
-npm i
+pnpm install
 
-# Your output should look something like this:
-added 1472 packages, and audited 1473 packages in 14s
+# Your output should look something like this, if installing for the first time:
+Packages: +345
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 345, reused 0, downloaded 345, added 345, done
 
-262 packages are looking for funding
-  run `npm fund` for details
+dependencies:
++ @testing-library/jest-dom 5.17.0
++ @testing-library/react 16.3.2
++ @testing-library/user-event 13.5.0
++ @types/react 19.2.14
++ @types/react-dom 19.2.3
++ react 19.2.4
++ react-dom 19.2.4
++ react-player 2.16.1
++ web-vitals 2.1.4
 
-28 vulnerabilities (6 low, 8 moderate, 13 high, 1 critical)
+devDependencies:
++ @biomejs/biome 2.3.8
++ @vitejs/plugin-react 5.2.0
++ jsdom 28.1.0
++ source-map-loader 5.0.0
++ ts-loader 9.5.4
++ typescript 5.9.3
++ vite 7.3.1
++ vitest 4.1.0
 
-To address issues that do not require attention, run:
-  npm audit fix
+Done in 12.3s using pnpm v10.32.1
 
-To address all issues (including breaking changes), run:
-  npm audit fix --force
 
-Run `npm audit` for details.
-npm notice
-npm notice New major version of npm available! 10.9.4 -> 11.6.2
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
-npm notice To update run: npm install -g npm@11.6.2
-npm notice
+# Your output should look something like this, if already installed:
+Lockfile is up to date, resolution step is skipped
+Already up to date
 
+   ╭─────────────────────────────────────────╮
+   │                                         │
+   │   Update available! 10.32.1 → 11.0.8.   │
+   │   Changelog: https://pnpm.io/v/11.0.8   │
+   │    To update, run: pnpm self-update     │
+   │                                         │
+   ╰─────────────────────────────────────────╯
+
+Done in 862ms using pnpm v10.32.1
 # Done!
 ```
 
@@ -76,7 +96,7 @@ npm notice
 
 ```bash
 # To start the frontend, simply run the following command in the frontend's folder.
-npm run start --host
+pnpm start --host
 
 # Your output should look like this:
 VITE v7.3.1  ready in 96 ms
@@ -89,7 +109,7 @@ VITE v7.3.1  ready in 96 ms
 The URLs that are outputted by this command (i.e. http://localhost:3000) are the same URLs that you use to see the GUI from your web browser. You may hold ctrl and then click on the links to view them or simply copy & paste them into your browser.
 
 > [!TIP]
-> If the `npm run start` command fails, it may be because something else (like another instance of the frontend) is running on the frontend's same port (`3000` in this case). See the code block below for an example of this!
+> If the `pnpm start` command fails, it may be because something else (like another instance of the frontend) is running on the frontend's same port (`3000` in this case). See the code block below for an example of this!
 
 ```bash
 ? Something is already running on port 3000. Probably:

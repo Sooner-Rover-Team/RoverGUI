@@ -9,4 +9,9 @@ export default defineConfig({
       "/stream": "http://localhost:3600",
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
+  }
 });
