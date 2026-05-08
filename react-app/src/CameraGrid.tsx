@@ -10,11 +10,6 @@ export interface CameraContainer {
   error?: string | null;
 }
 
-export interface ConnectionAndStream {
-    connection: RTCPeerConnection;
-    stream: MediaStream;
-}
-
 interface CameraGridProps {
   cameras: CameraContainer[];
   onRemoveCamera: (cameraId: string) => void;
