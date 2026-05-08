@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import CameraGrid, { type CameraContainer } from "./CameraGrid";
+import CameraToolbar from "./CameraToolbar";
 
 //filepath for testing (DELETE LATER): ../../../GitHub/Automomous/examples/ARTrackerTest/videos
 function App() {
   const [fpsSlider, setFpsSlider] = useState<number>(50); // Initial fps slider value
   const [resolutionSlider, setResolutionSlider] = useState<number>(50); // Initial resolution slider value
+  
+  const [selectedSize, setSelectedSize] = useState<"large" | "small">("large");
 
   //Need to create a selection of camera names to choose from, and then pass that camera name
   //to the image source to get the video feed from the server
@@ -85,12 +88,15 @@ function App() {
           ? {
               ...container,
               name: cameraId,
+              size: selectedSize,
               connection: peerConnection,
             }
           : container
       )
     );
 
+    /* Should this line come before the above function call? since we're 
+    calling peerConnection in setCameraContainers? */
     const peerConnection = new RTCPeerConnection();
 
     peerConnection.onconnectionstatechange = () => {
@@ -238,6 +244,18 @@ function App() {
   return (
     <div className="App">
       <div className="camera-select">
+        <CameraToolbar
+          cameras={cameras}
+          selectedCamera={selectedCamera}
+          selectedSize={selectedSize}
+          fpsSlider={fpsSlider}
+          resolutionSlider={resolutionSlider}
+          setSelectedCamera={setSelectedCamera}
+          setSelectedSize={setSelectedSize}
+          setFpsSlider={setFpsSlider}
+          setResolutionSlider={setResolutionSlider}
+          handleAddCamera={handleAddCamera}
+        />
         <label htmlFor="cameraSelect"> Select Camera: </label>
         <select
           id="cameraSelect"
