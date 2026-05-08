@@ -41,17 +41,14 @@ function App() {
   const throwCameraError = (connection: RTCPeerConnection, errorMessage: string) => {
     const cameraId = Array.from(cameraConnections.entries()).find(([_, conn]) => conn === connection)?.[0];
 
-    console.error("stream: camera connection error", {
-      cameraId,
-      errorMessage,
-    });
+    alert(`stream: camera connection error\nCamera ID: ${cameraId}\nError: ${errorMessage}`);
 
     connection.close();
 
     setCameraContainers((prev) =>
       prev.map((container) =>
         container.name === cameraId
-          ? { ...container, stream: null, connection: null, error: errorMessage }
+          ? { ...container, connStream: null, error: errorMessage }
           : container
       )
     );
@@ -71,15 +68,12 @@ function App() {
   const launchCameraStream = async (cameraConnection: CameraContainer) => {
 
     if (selectedCamera === "") {
-      console.warn("stream: no camera selected; cannot add camera.");
+      alert("stream: no camera selected; cannot add camera.");
       return;
     }
 
     if (cameraConnections.has(selectedCamera)) {
-      console.warn(
-        "stream: camera already has an active connection; cannot add camera.",
-        selectedCamera,
-      );
+      alert("stream: camera already has an active connection; cannot add camera.");
       return;
     }
 
