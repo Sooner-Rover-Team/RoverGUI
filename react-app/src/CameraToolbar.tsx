@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type CameraContainer } from "./CameraGrid";
 import "./CameraToolbar.css";
 
@@ -23,8 +23,19 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
 }) => {
   const [fpsSlider, setFpsSlider] = useState<number>(50); // Initial fps slider value
   const [resolutionSlider, setResolutionSlider] = useState<number>(50); // Initial resolution slider value
-  
+
+  const  [isStreamActive, setIsStreamActive] = useState<boolean>(false);
   const [selectedSize, setSelectedSize] = useState<"large" | "small">("large");
+
+  useEffect(() => {
+    if (selectedCamera === "") {
+      setIsStreamActive(false);
+      return;
+    }
+
+    const connection = cameraConnections.get(selectedCamera);
+    setIsStreamActive(connection?.connectionState === "connected" || connection?.connectionState === "connecting" || connection?.iceConnectionState === "failed");
+  }, [selectedCamera, cameraConnections]);
 
   const throwCameraError = (connection: RTCPeerConnection, errorMessage: string) => {
     const cameraId = Array.from(cameraConnections.entries()).find(([_, conn]) => conn === connection)?.[0];
@@ -258,7 +269,7 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
         const cameraContainer = cameraContainers.find(container => container.name === selectedCamera);
 
         handleLaunchStream(cameraContainer);
-      }}>
+      }} disabled={isStreamActive}>
         Launch Stream
       </button>
 
