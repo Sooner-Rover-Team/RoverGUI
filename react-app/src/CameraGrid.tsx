@@ -14,14 +14,12 @@ interface CameraGridProps {
   cameras: CameraContainer[];
   onRemoveCamera: (cameraId: string) => void;
   selectedCamera: string;
-  setSelectedCamera: (cameraId: string) => void;
   updateToolbar: (cameraPath: string) => void;
 }
 
 const CameraGrid: React.FC<CameraGridProps> = ({
   cameras,
   selectedCamera,
-  setSelectedCamera,
   onRemoveCamera,
   updateToolbar,
 }) => {

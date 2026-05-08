@@ -259,24 +259,6 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
 
   return (
     <div className="toolbar-container">
-      <button className="button" onClick={() => {
-        if (selectedCamera === "") {
-          alert("stream: no camera selected; cannot launch stream.");
-          return;
-        }
-
-        // find camera container for selected camera
-        const cameraContainer = cameraContainers.find(container => container.name === selectedCamera);
-
-        handleLaunchStream(cameraContainer);
-      }} disabled={isStreamActive}>
-        Launch Stream
-      </button>
-
-      <button className="button" onClick={handleRelaunchStream}>
-        Re-Launch
-      </button>
-
       <div className="size-group">
         <label className="label">
           <input
@@ -334,6 +316,23 @@ const CameraToolbar: React.FC<CameraToolbarProps> = ({
           </option>
         ))}
       </select>
+      <button className="button" onClick={() => {
+        if (selectedCamera === "") {
+          alert("stream: no camera selected; cannot launch stream.");
+          return;
+        }
+
+        // find camera container for selected camera
+        const cameraContainer = cameraContainers.find(container => container.name === selectedCamera);
+
+        handleLaunchStream(cameraContainer);
+      }} disabled={isStreamActive}>
+        Launch Stream
+      </button>
+
+      <button className="button" onClick={handleRelaunchStream}>
+        Re-Launch
+      </button>
     </div>
   );
 };

@@ -85,7 +85,7 @@ function App() {
       </div>
       <div className="camera-content">
         <div className="camera-grid">
-          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} setSelectedCamera={setSelectedCamera} updateToolbar={updateToolbar} />
+          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} updateToolbar={updateToolbar} />
         </div>
       </div>
     </div>
