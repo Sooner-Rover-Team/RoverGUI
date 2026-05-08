@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
+import CameraGrid, { type CameraContainer } from "./CameraGrid";
 
 //filepath for testing (DELETE LATER): ../../../GitHub/Automomous/examples/ARTrackerTest/videos
 function App() {
@@ -11,17 +12,7 @@ function App() {
 
   const [cameras, setCameras] = useState<string[] | null>([]); //getting available devices from server
 
-  const connection = useRef<RTCPeerConnection | null>(null);
-  const videoDivRef = useRef<HTMLDivElement | null>(null);
-
-  /*//Effect to get the camera names from the server
-  useEffect(() => {
-    fetch('/video_feed/available_devices')
-      .then(response => response.json())
-      .then(data => {
-        updateCameraNames(data)
-      })
-  }, [])*/
+  const [cameraConnections, setCameraConnections] = useState<Map<string, RTCPeerConnection>>(new Map());
 
   // Fetch Camera(s) Information from Server
   useEffect(() => {
@@ -35,14 +26,33 @@ function App() {
     })();
   }, []);
 
-  // //test data for camera names
-  // useEffect(() => {
-  //   setCameras([null, 'Camera 1', 'Camera 2', 'Camera 3'])
-  // }, [])
-
   //On change of the camera selection, add components for camera feed and sliders
   //to control the camera feed
   const [selectedCamera, setSelectedCamera] = useState("");
+
+  const [cameraContainers, setCameraContainers] = useState<CameraContainer[]>([
+    { id: '1', name: 'Camera 1', size: 'large', connection: null, stream: null },
+    { id: '2', name: 'Camera 2', size: 'large', connection: null, stream: null },
+    { id: '3', name: 'Camera 3', size: 'small', connection: null, stream: null },
+    { id: '4', name: 'Camera 4', size: 'small', connection: null, stream: null },
+    { id: '5', name: 'Camera 5', size: 'small', connection: null, stream: null },
+  ])
+
+  const throwCameraError = (connection: RTCPeerConnection, errorMessage: string) => {
+    const cameraId = Array.from(cameraConnections.entries()).find(([_, conn]) => conn === connection)?.[0];
+
+    alert(`stream: camera connection error\nCamera ID: ${cameraId}\nError: ${errorMessage}`);
+
+    connection.close();
+
+    setCameraContainers((prev) =>
+      prev.map((container) =>
+        container.name === cameraId
+          ? { ...container, connStream: null, error: errorMessage }
+          : container
+      )
+    );
+  }
 
   const handleCameraChange = async (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -52,104 +62,95 @@ function App() {
       `stream: camera selection changed to: \`${selectedCameraPath}\``,
     );
 
-    if (connection.current !== null) {
-      console.log("stream: closing current connection.", selectedCameraPath);
-      connection.current.close();
-      if (videoDivRef.current) {
-        videoDivRef.current.innerHTML = "";
-      }
-    }
+    setSelectedCamera(selectedCameraPath);
+  };
 
-    if (selectedCameraPath === "") {
-      console.log(
-        "stream: cannot stream for empty path. early returning...",
-        selectedCameraPath,
-      );
+  const launchCameraStream = async (cameraConnection: CameraContainer) => {
+
+    if (selectedCamera === "") {
+      alert("stream: no camera selected; cannot add camera.");
       return;
     }
 
+    if (cameraConnections.has(selectedCamera)) {
+      alert("stream: camera already has an active connection; cannot add camera.");
+      return;
+    }
+
+    const cameraId = selectedCamera;
+
+    setCameraContainers((prev) =>
+      prev.map((container) =>
+        container.id === cameraConnection.id
+          ? {
+              ...container,
+              name: cameraId,
+              connection: peerConnection,
+            }
+          : container
+      )
+    );
+
     const peerConnection = new RTCPeerConnection();
+
     peerConnection.onconnectionstatechange = () => {
       console.info("stream: peer connection change", {
-        selectedCameraPath,
+        cameraId,
         state: peerConnection.connectionState,
       });
+
+      if(peerConnection.connectionState === "failed") {
+        throwCameraError(peerConnection, `Peer connection state is ${peerConnection.connectionState}`);
+      }
     };
 
     peerConnection.oniceconnectionstatechange = () => {
       console.info("stream: ice connection state changed", {
-        selectedCameraPath,
+        cameraId,
         state: peerConnection.iceConnectionState,
       });
+      if(peerConnection.connectionState === "failed") {
+        throwCameraError(peerConnection, `Peer connection state is ${peerConnection.connectionState}`);
+      }
     };
 
     peerConnection.ontrack = (e) => {
-      const el = document.createElement(e.track.kind) as HTMLMediaElement;
-      el.srcObject = e.streams[0] ?? null;
-      if (el.srcObject === null) {
-        console.error(
-          "stream: video `src` was set to `null` for path: ",
-          selectedCameraPath,
-        );
+      console.debug("stream: received track event on peer connection", {
+        cameraId,
+        trackKind: e.track.kind,
+        streamIds: e.streams.map((s) => s.id),
       }
+      );
 
-      el.autoplay = true;
-      el.controls = true;
-      el.onerror = (error) => {
-        console.error("stream: html media element err: ", {
-          selectedCameraPath,
-          kind: e.track.kind,
-          error,
-          mediaError: el.error,
+      if(e.track.kind === "video" && e.streams.length > 0) {
+        const stream = e.streams[0];
+
+        setCameraContainers((prev) => {
+          return prev.map((container) =>
+            container.id === cameraConnection.id
+              ? {
+                  ...container,
+                  name: cameraId,
+                  stream: stream || null,
+                  connection: peerConnection,
+                }
+              : container
+          );
+        });
+
+        console.debug("stream: created video element for track event", {
+          cameraId,
+          trackKind: e.track.kind,
+          streamIds: e.streams.map((s) => s.id),
         });
       };
-
-      if (videoDivRef.current) {
-        videoDivRef.current.appendChild(el);
-        console.debug(
-          "stream: added HTMLMediaElement to videoDiv.",
-          selectedCameraPath,
-        );
-      } else {
-        console.error(
-          "stream: videoDiv missing; cannot append media element.",
-          selectedCameraPath,
-        );
-      }
     };
 
     peerConnection.onicecandidate = async (e) => {
-      if (e.candidate === null || connection.current !== null) return;
-      connection.current = peerConnection;
-
-      try {
-        const response = await fetch(
-          `/stream/cameras/${encodeURIComponent(selectedCameraPath)}/start`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(peerConnection.localDescription),
-          },
-        );
-        if (!response.ok) {
-          throw new Error(
-            `failed to start stream! http err: ${response.status}`,
-          );
-        }
-        const remoteOffer = await response.json();
-        await peerConnection.setRemoteDescription(
-          new RTCSessionDescription(remoteOffer),
-        );
-
-        setSelectedCamera(selectedCameraPath);
-      } catch (error) {
-        console.error("stream: failed to create rtc stream session", {
-          selectedCameraPath,
-          error,
-        });
-      }
+      console.debug("stream: ice candidate event", {
+        cameraId,
+        candidate: e.candidate,
+      });
 
       // IMPORTANT: Calls to the API should only run after this point.
 
@@ -174,11 +175,63 @@ function App() {
     try {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
+
+      const response = await fetch(
+        `/stream/cameras/${encodeURIComponent(cameraId)}/start`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(peerConnection.localDescription),
+        },
+      );
+      if (!response.ok) {
+        throw new Error(
+          `failed to start stream! http err: ${response.status}`,
+        );
+      }
+      const remoteOffer = await response.json();
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(remoteOffer),
+      );
+      setCameraConnections((prev) => new Map(prev).set(cameraId, peerConnection));
     } catch (error) {
-      console.error("stream: failed to do offer/local desc", {
-        selectedCameraPath,
-        error,
-      });
+      throwCameraError(peerConnection, error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const handleAddCamera = async () => {
+    // Find the first available container
+    const availableContainer = cameraContainers.find(
+      (container) => container.stream === null && container.connection === null
+    );
+ 
+    if (!availableContainer) {
+      console.warn("stream: no available containers for camera");
+      return;
+    }
+
+    await launchCameraStream(availableContainer);
+  }
+
+  const handleRemoveCamera = () => {
+    const connection = cameraConnections.get(selectedCamera);
+    if (connection) {
+      connection.close();
+      const updatedConnections = new Map(cameraConnections);
+      updatedConnections.delete(selectedCamera);
+      setCameraConnections(updatedConnections);
+
+      setCameraContainers((prev) =>
+        prev.map((container) =>
+          container.name === selectedCamera
+            ? { ...container, stream: null, connection: null, name: '' }
+            : container
+        )
+      );
+
+      setSelectedCamera("");
     }
   };
 
@@ -191,49 +244,42 @@ function App() {
           value={selectedCamera}
           onChange={handleCameraChange}
         >
-          {// TODO: Add an error display if cameras is null
-          cameras?.map((camera, index) => {
-            return (
-              <option key={camera || `empty-${index}`} value={camera}>
-                {camera}
-              </option>
-            );
-          })}
+          {cameras?.map((camera, index) => (
+            <option key={camera || `empty-${index}`} value={camera}>
+              {camera}
+            </option>
+          ))}
         </select>
-        <div>
-          <div id="videoDiv" ref={videoDivRef} />
-          {selectedCamera && (
-            <div>
-              {/* <div className="camera-feed">
-            <img src={`/stream/video_feed/${selectedCamera}`} alt="Camera Frame" width="600" height="400" />
-          </div> */}
-              <div className="slider-container">
-                <label htmlFor="fpsSlider"> FPS: </label>
-                <input
-                  id="fpsSlider"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={fpsSlider}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setFpsSlider(Number(event.target.value))
-                  }
-                />
-                <label htmlFor="resolutionSlider"> Resolution: </label>
-                <input
-                  id="resolutionSlider"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={resolutionSlider}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setResolutionSlider(Number(event.target.value))
-                  }
-                />
-              </div>
-            </div>
-          )}
+        {selectedCamera && <button type="button" onClick={handleAddCamera}>+ Add Camera</button>}
+      </div>
+      <div className="camera-content">
+        <div className="camera-grid">
+          <CameraGrid cameras={cameraContainers} onRemoveCamera={handleRemoveCamera} selectedCamera={selectedCamera} setSelectedCamera={setSelectedCamera} />
         </div>
+  
+        {selectedCamera && (
+          <div className="slider-container">
+            <label htmlFor="fpsSlider"> FPS: </label>
+            <input
+              id="fpsSlider"
+              type="range"
+              min="0"
+              max="100"
+              value={fpsSlider}
+              onChange={(e) => setFpsSlider(Number(e.target.value))}
+            />
+  
+            <label htmlFor="resolutionSlider"> Resolution: </label>
+            <input
+              id="resolutionSlider"
+              type="range"
+              min="0"
+              max="100"
+              value={resolutionSlider}
+              onChange={(e) => setResolutionSlider(Number(e.target.value))}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
